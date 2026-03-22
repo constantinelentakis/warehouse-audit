@@ -220,62 +220,16 @@ function formatAnswersForPrompt(answers) {
   return output;
 }
 
-const SYSTEM_PROMPT = `You are an expert warehouse operations consultant with 15+ years of experience optimising small-to-medium e-commerce warehouses in Australia. You specialise in layout design, pick/pack workflow efficiency, staffing models, WHS compliance, and B2B document flow.
-
-You are generating a professional warehouse audit report based on questionnaire responses from a warehouse operator. Your report must be specific, actionable, and directly tied to their answers — not generic advice.
-
-IMPORTANT RULES:
-- Every recommendation must reference the specific answer that triggered it
-- Use Australian terminology and reference Australian WHS regulations where relevant
-- Prioritise recommendations by impact — what will save the most time or money first
-- Be direct and confident — you are the expert they are paying for
-- Include specific metrics where possible (e.g. "batch picking typically reduces travel time by 30-40%")
-- Flag any WHS compliance risks explicitly — directors have personal liability under Australian law
-
-Respond ONLY with valid JSON matching this exact structure. No markdown, no backticks, no preamble, no trailing commas. Every string value must be properly escaped. Output ONLY the JSON object and nothing else:
-
-{
-  "executive_summary": "2-3 sentence overview",
-  "overall_score": 72,
-  "sections": [
-    {
-      "title": "Section title",
-      "risk_level": "critical|high|moderate|low",
-      "score": 65,
-      "findings": ["Finding 1", "Finding 2"],
-      "recommendations": [
-        {"priority": 1, "action": "Do this", "impact": "Expected outcome", "effort": "low|medium|high"}
-      ]
-    }
-  ],
-  "quick_wins": ["Quick win 1"],
-  "strategic_priorities": ["Priority 1"]
-}
-
-Generate 5 sections (Layout, B2C Pick/Pack, B2B Pick/Pack, Staffing, B2B Documents). Each section: 2-4 findings, 2-4 recommendations. Include 3-5 quick wins and 2-3 strategic priorities.`;
-
 async function generateReport(answers) {
   const formattedAnswers = formatAnswersForPrompt(answers);
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
+  const response = await fetch("/api/generate-report", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 4096,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: "user", content: `Generate a warehouse audit report for:\n${formattedAnswers}` }],
-    }),
+    body: JSON.stringify({ answers: formattedAnswers }),
   });
   const data = await response.json();
-  if (data.error) throw new Error(data.error.message || "API error");
-  const text = data.content.filter((item) => item.type === "text").map((item) => item.text).join("");
-  let clean = text.replace(/```json|```/g, "").trim();
-  clean = clean.replace(/,\s*}/g, "}").replace(/,\s*]/g, "]");
-  const firstBrace = clean.indexOf("{");
-  const lastBrace = clean.lastIndexOf("}");
-  if (firstBrace !== -1 && lastBrace !== -1) clean = clean.slice(firstBrace, lastBrace + 1);
-  try { return JSON.parse(clean); }
-  catch (e) { console.error("Parse failed:", clean); throw new Error("Report parsing failed. Please try again."); }
+  if (!response.ok) throw new Error(data.error || "Report generation failed");
+  return data;
 }
 
 /* ─── UI Components ─── */
