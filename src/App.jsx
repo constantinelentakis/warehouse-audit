@@ -50,7 +50,9 @@ const QUESTIONS = {
     },
   ],
   pickpack_b2c: [
-    { id: "b2c_daily_orders", label: "Average daily B2C order volume", type: "number", suffix: "orders/day", placeholder: "e.g. 150" },
+    { id: "b2c_daily_orders", label: "Average daily B2C order volume (non-busy periods)", type: "number", suffix: "orders/day", placeholder: "e.g. 150" },
+    { id: "b2c_daily_orders_busy", label: "Average daily B2C order volume (busy periods)", type: "number", suffix: "orders/day", placeholder: "e.g. 300" },
+    { id: "b2c_picks_per_hour", label: "For B2C picks, what is the average items picked per person per hour?", type: "number", suffix: "items/hour", placeholder: "e.g. 60" },
     { id: "b2c_skus_per_order", label: "Average number of SKUs per B2C order", type: "number", suffix: "SKUs", placeholder: "e.g. 3" },
     {
       id: "b2c_dispatch_size", label: "Typical size of dispatched B2C orders", type: "multiselect",
@@ -78,7 +80,8 @@ const QUESTIONS = {
     },
   ],
   pickpack_b2b: [
-    { id: "b2b_daily_orders", label: "Average daily B2B order volume", type: "number", suffix: "orders/day", placeholder: "e.g. 20" },
+    { id: "b2b_daily_orders", label: "Average daily B2B order volume (non-busy periods)", type: "number", suffix: "orders/day", placeholder: "e.g. 20" },
+    { id: "b2b_daily_orders_busy", label: "Average daily B2B order volume (busy periods)", type: "number", suffix: "orders/day", placeholder: "e.g. 40" },
     { id: "b2b_skus_per_order", label: "Average number of SKUs per B2B order", type: "number", suffix: "SKUs", placeholder: "e.g. 12" },
     {
       id: "b2b_dispatch_size", label: "Typical size of dispatched B2B orders", type: "multiselect",
@@ -107,8 +110,10 @@ const QUESTIONS = {
   ],
   staffing: [
     { id: "headcount_fulltime", label: "Full-time warehouse staff", type: "number", suffix: "people", placeholder: "e.g. 4" },
-    { id: "headcount_parttime", label: "Part-time warehouse staff", type: "number", suffix: "people", placeholder: "e.g. 2" },
-    { id: "headcount_casual", label: "Casual warehouse staff", type: "number", suffix: "people", placeholder: "e.g. 3" },
+    { id: "headcount_parttime", label: "Part-time warehouse staff per day (non-busy periods)", type: "number", suffix: "people", placeholder: "e.g. 2" },
+    { id: "headcount_parttime_busy", label: "Part-time warehouse staff per day (busy periods)", type: "number", suffix: "people", placeholder: "e.g. 4" },
+    { id: "headcount_casual", label: "Casual warehouse staff per day (non-busy periods)", type: "number", suffix: "people", placeholder: "e.g. 3" },
+    { id: "headcount_casual_busy", label: "Casual warehouse staff per day (busy periods)", type: "number", suffix: "people", placeholder: "e.g. 8" },
     {
       id: "task_assignment", label: "How are daily tasks assigned?", type: "multiselect",
       options: ["Verbal instructions each morning", "Whiteboard / physical board", "Digital roster or task system", "Staff self-direct based on experience", "No formal system"],
@@ -380,13 +385,17 @@ function ReportView({ report, onBack }) {
       pw.document.write(`<div class="section"><h2>${s.title} <span class="badge" style="background:${rc.bg};color:${rc.text};border:1px solid ${rc.border}">${rc.label}</span> — ${s.score}/100</h2><h3>Findings</h3>`);
       s.findings.forEach((f) => pw.document.write(`<div class="finding">${f}</div>`));
       pw.document.write(`<h3 style="margin-top:16px">Recommendations</h3>`);
-      s.recommendations.forEach((r) => pw.document.write(`<div class="rec"><div class="rec-p">Priority ${r.priority} · ${r.effort} effort</div><div class="rec-a">${r.action}</div><div class="rec-i">${r.impact}</div></div>`));
+      s.recommendations.forEach((r) => pw.document.write(`<div class="rec"><div class="rec-p">Priority ${r.priority} · ${r.effort} effort${r.timeframe ? ' · ' + r.timeframe : ''}</div><div class="rec-a">${r.action}</div><div class="rec-i">${r.impact}</div></div>`));
       pw.document.write(`</div>`);
     });
     pw.document.write(`<h2>Quick Wins</h2>`);
     report.quick_wins.forEach((q) => pw.document.write(`<div class="finding">✓ ${q}</div>`));
     pw.document.write(`<h2>Strategic Priorities</h2>`);
     report.strategic_priorities.forEach((s) => pw.document.write(`<div class="finding">→ ${s}</div>`));
+    if (report.references && report.references.length > 0) {
+      pw.document.write(`<h2 style="color:#6B6460;font-size:15px;">References</h2>`);
+      report.references.forEach((r) => pw.document.write(`<div style="font-size:11px;color:#6B6460;padding:4px 0;border-bottom:1px solid #E4DED8;font-family:'JetBrains Mono',monospace;">${r}</div>`));
+    }
     pw.document.write(`</body></html>`);
     pw.document.close();
     pw.onload = () => pw.print();
@@ -427,9 +436,10 @@ function ReportView({ report, onBack }) {
                   <div style={{ display: "flex", gap: "8px", marginBottom: "6px" }}>
                     <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", color: theme.accent, fontWeight: 600 }}>P{rec.priority}</span>
                     <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", fontWeight: 600, textTransform: "uppercase", padding: "1px 6px", borderRadius: "3px", background: rec.effort === "low" ? theme.successDim : rec.effort === "high" ? "rgba(196,61,61,0.08)" : theme.warningDim, color: rec.effort === "low" ? theme.success : rec.effort === "high" ? theme.danger : theme.warning }}>{rec.effort} effort</span>
+                    {rec.timeframe && <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", fontWeight: 600, padding: "1px 6px", borderRadius: "3px", background: theme.accentDim, color: theme.accent }}>{rec.timeframe}</span>}
                   </div>
                   <div style={{ fontSize: "14px", fontWeight: 600, color: theme.text, marginBottom: "4px" }}>{rec.action}</div>
-                  <div style={{ fontSize: "13px", color: theme.textMuted, lineHeight: 1.5 }}>{rec.impact}</div>
+                  <div style={{ fontSize: "13px", color: theme.textMuted, lineHeight: 1.7 }}>{rec.impact}</div>
                 </div>
               ))}
             </div>
@@ -446,6 +456,17 @@ function ReportView({ report, onBack }) {
         <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "17px", fontWeight: 700, color: theme.accent, marginBottom: "14px" }}>Strategic Priorities — Next 3–6 Months</h3>
         {report.strategic_priorities.map((sp, i) => (<div key={i} style={{ padding: "8px 0", fontSize: "14px", color: theme.text, lineHeight: 1.6 }}><span style={{ color: theme.accent, marginRight: "8px", fontWeight: 700 }}>→</span>{sp}</div>))}
       </div>
+
+      {report.references && report.references.length > 0 && (
+        <div style={{ background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: "12px", padding: "24px", marginBottom: "32px" }}>
+          <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "15px", fontWeight: 700, color: theme.textMuted, marginBottom: "14px" }}>References</h3>
+          {report.references.map((ref, i) => (
+            <div key={i} style={{ padding: "6px 0", fontSize: "12px", color: theme.textMuted, fontFamily: "'JetBrains Mono', monospace", lineHeight: 1.6, borderBottom: `1px solid ${theme.border}` }}>
+              {ref}
+            </div>
+          ))}
+        </div>
+      )}
 
       <div style={{ display: "flex", gap: "12px" }}>
         <button onClick={onBack} style={{ flex: 1, padding: "14px", background: "transparent", border: `1px solid ${theme.border}`, borderRadius: "8px", color: theme.textMuted, fontSize: "14px", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: "pointer" }}>← Back to Summary</button>
