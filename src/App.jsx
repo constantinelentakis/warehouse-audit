@@ -50,10 +50,10 @@ const QUESTIONS = {
     },
   ],
   pickpack_b2c: [
-    { id: "b2c_daily_orders", label: "Average daily B2C order volume (non-busy periods)", type: "number", suffix: "orders/day", placeholder: "e.g. 150" },
-    { id: "b2c_daily_orders_busy", label: "Average daily B2C order volume (busy periods)", type: "number", suffix: "orders/day", placeholder: "e.g. 300" },
+    { id: "b2c_daily_orders", label: "Average daily B2C orders dispatched (non-busy periods)", type: "number", suffix: "orders/day", placeholder: "e.g. 150" },
+    { id: "b2c_daily_orders_busy", label: "Average daily B2C orders dispatched (busy periods)", type: "number", suffix: "orders/day", placeholder: "e.g. 300" },
     { id: "b2c_picks_per_hour", label: "For B2C picks, what is the average items picked per person per hour?", type: "number", suffix: "items/hour", placeholder: "e.g. 60" },
-    { id: "b2c_skus_per_order", label: "Average number of SKUs per B2C order", type: "number", suffix: "SKUs", placeholder: "e.g. 3" },
+    { id: "b2c_skus_per_order", label: "Average number of items per B2C order", type: "number", suffix: "items", placeholder: "e.g. 3" },
     {
       id: "b2c_dispatch_size", label: "Typical size of dispatched B2C orders", type: "multiselect",
       options: ["Small satchel", "Medium satchel", "Large satchel", "Small box", "Medium box", "Large box", "Multiple boxes", "Pallet", "Multiple pallets"],
@@ -80,9 +80,9 @@ const QUESTIONS = {
     },
   ],
   pickpack_b2b: [
-    { id: "b2b_daily_orders", label: "Average daily B2B order volume (non-busy periods)", type: "number", suffix: "orders/day", placeholder: "e.g. 20" },
-    { id: "b2b_daily_orders_busy", label: "Average daily B2B order volume (busy periods)", type: "number", suffix: "orders/day", placeholder: "e.g. 40" },
-    { id: "b2b_skus_per_order", label: "Average number of SKUs per B2B order", type: "number", suffix: "SKUs", placeholder: "e.g. 12" },
+    { id: "b2b_daily_orders", label: "Average daily B2B orders dispatched (non-busy periods)", type: "number", suffix: "orders/day", placeholder: "e.g. 20" },
+    { id: "b2b_daily_orders_busy", label: "Average daily B2B orders dispatched (busy periods)", type: "number", suffix: "orders/day", placeholder: "e.g. 40" },
+    { id: "b2b_skus_per_order", label: "Average number of items per B2B order", type: "number", suffix: "items", placeholder: "e.g. 12" },
     {
       id: "b2b_dispatch_size", label: "Typical size of dispatched B2B orders", type: "multiselect",
       options: ["Small satchel", "Medium satchel", "Large satchel", "Small box", "Medium box", "Large box", "Multiple boxes", "Pallet", "Multiple pallets"],
