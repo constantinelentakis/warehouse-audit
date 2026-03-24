@@ -38,7 +38,7 @@ const QUESTIONS = {
     },
     {
       id: "bulk_storage", label: "How are bulk products stored?", type: "multiselect",
-      options: ["Racking (forklift access)", "Racking (ladder access)", "Mezzanine", "Above pick stock (ladder access)", "Floor / block stacking (pallets on ground)", "Drive-in or drive-through racking", "Cantilever racking (long or irregular items)", "Shelving units", "Shipping containers or external storage", "No dedicated bulk storage"],
+      options: ["Racking (forklift access)", "Racking (ladder access)", "Mezzanine", "Floor shelving (ladder access)", "Floor / block stacking (pallets on ground)", "Drive-in or drive-through racking", "Cantilever racking (long or irregular items)", "Shelving units", "Shipping containers or external storage", "No dedicated bulk storage"],
     },
     {
       id: "warehouse_capacity", label: "How full is your warehouse?", type: "multiselect",
