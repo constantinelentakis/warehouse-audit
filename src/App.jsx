@@ -487,8 +487,7 @@ function LoadingView() {
     <div style={{ textAlign: "center", padding: "60px 20px" }}>
       <div style={{ width: "64px", height: "64px", margin: "0 auto 24px", borderRadius: "50%", border: `3px solid ${theme.border}`, borderTopColor: theme.accent, animation: "spin 1s linear infinite" }} />
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "22px", fontWeight: 700, color: theme.text, marginBottom: "8px" }}>Generating Your Audit Report{dots}</h2>
-      <p style={{ fontSize: "14px", color: theme.textMuted, marginBottom: "32px" }}>This takes about 15–20 seconds</p>
+      <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "22px", fontWeight: 700, color: theme.text, marginBottom: "32px" }}>Generating Your Audit Report{dots}</h2>
       <div style={{ maxWidth: "360px", margin: "0 auto", textAlign: "left" }}>
         {steps.map((s, i) => (
           <div key={i} style={{ padding: "10px 0", display: "flex", alignItems: "center", gap: "12px", opacity: i <= step ? 1 : 0.3, transition: "opacity 0.5s ease" }}>
