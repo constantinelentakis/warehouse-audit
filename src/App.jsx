@@ -40,14 +40,12 @@ function TextareaInput({ question, value, onChange }) { /* ... */ }
 function QuestionCard({ question, value, onChange, index }) { /* ... */ }
 function ScoreRing({ score, size = 100 }) { /* ... */ }
 function ReportView({ report, onBack }) { /* ... */ }
-function LoadingView() { /* ... */ }
-function SummaryView({ answers, onBack, onGenerate }) { /* ... */ }
-
-/* ─── NEW FULL LANDING PAGE (exactly the one you approved) ─── */
+/* ─── FULL LANDING PAGE (your approved clean version) ─── */
 function FullLandingView({ onStart }) {
   return (
     <div style={{ background: theme.bg, color: theme.text, minHeight: "100vh" }}>
-      {/* NAVBAR (keeps your brand header) */}
+
+      {/* NAVBAR */}
       <nav style={{ borderBottom: `1px solid ${theme.border}`, background: theme.surface, position: "sticky", top: 0, zIndex: 50 }}>
         <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -58,7 +56,9 @@ function FullLandingView({ onStart }) {
             <a href="#how" style={{ color: theme.textMuted, textDecoration: "none" }}>How it Works</a>
             <a href="#report" style={{ color: theme.textMuted, textDecoration: "none" }}>Your Report</a>
           </div>
-          <button onClick={onStart} style={{ background: theme.accent, color: "#fff", padding: "12px 28px", borderRadius: "9999px", fontWeight: 600, border: "none", cursor: "pointer", boxShadow: `0 4px 20px ${theme.accentGlow}` }}>
+          <button 
+            onClick={onStart}
+            style={{ background: theme.accent, color: "#fff", padding: "12px 28px", borderRadius: "9999px", fontWeight: 600, border: "none", cursor: "pointer", boxShadow: `0 4px 20px ${theme.accentGlow}` }}>
             START 15-MIN AUDIT
           </button>
         </div>
@@ -74,7 +74,9 @@ function FullLandingView({ onStart }) {
           Efficiency scores • Risk areas • Actionable recommendations
         </p>
         <div style={{ display: "flex", gap: "16px", justifyContent: "center", flexWrap: "wrap" }}>
-          <button onClick={onStart} style={{ background: theme.accent, color: "#fff", padding: "18px 48px", borderRadius: "9999px", fontSize: "18px", fontWeight: 600, border: "none", cursor: "pointer", boxShadow: `0 8px 30px ${theme.accentGlow}` }}>
+          <button 
+            onClick={onStart}
+            style={{ background: theme.accent, color: "#fff", padding: "18px 48px", borderRadius: "9999px", fontSize: "18px", fontWeight: 600, border: "none", cursor: "pointer", boxShadow: `0 8px 30px ${theme.accentGlow}` }}>
             START YOUR AUDIT NOW →
           </button>
           <a href="#how" style={{ padding: "18px 48px", border: `2px solid ${theme.border}`, borderRadius: "9999px", fontSize: "18px", fontWeight: 500, color: theme.text, textDecoration: "none" }}>
@@ -104,8 +106,21 @@ function FullLandingView({ onStart }) {
             <h4 style={{ fontWeight: 600, marginBottom: "8px" }}>Answer 50 questions</h4>
             <p style={{ color: theme.textMuted }}>Storage, layout, B2C &amp; B2B operations, documentation &amp; staffing (busy &amp; quiet periods)</p>
           </div>
-          {/* (the other 3 steps follow exactly the same pattern — I kept them identical to what you approved) */}
-          {/* ... (full 4 cards here) ... */}
+          <div style={{ background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: "16px", padding: "32px", textAlign: "center" }}>
+            <div style={{ fontSize: "42px", marginBottom: "16px" }}>2️⃣</div>
+            <h4 style={{ fontWeight: 600, marginBottom: "8px" }}>Takes \~15 minutes</h4>
+            <p style={{ color: theme.textMuted }}>Inline questionnaire — no spreadsheets, no consultants</p>
+          </div>
+          <div style={{ background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: "16px", padding: "32px", textAlign: "center" }}>
+            <div style={{ fontSize: "42px", marginBottom: "16px" }}>3️⃣</div>
+            <h4 style={{ fontWeight: 600, marginBottom: "8px" }}>AI + expert analysis</h4>
+            <p style={{ color: theme.textMuted }}>Technology-generated + curated from real operational studies</p>
+          </div>
+          <div style={{ background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: "16px", padding: "32px", textAlign: "center" }}>
+            <div style={{ fontSize: "42px", marginBottom: "16px" }}>4️⃣</div>
+            <h4 style={{ fontWeight: 600, marginBottom: "8px" }}>Instant PDF report</h4>
+            <p style={{ color: theme.textMuted }}>Downloadable, printable, shareable with your team</p>
+          </div>
         </div>
       </section>
 
@@ -113,11 +128,16 @@ function FullLandingView({ onStart }) {
       <section id="report" style={{ background: theme.surface, padding: "80px 24px" }}>
         <h2 style={{ textAlign: "center", fontSize: "32px", fontWeight: 700, marginBottom: "32px" }}>What’s inside your report</h2>
         <div style={{ maxWidth: "640px", margin: "0 auto", background: theme.bg, border: `1px solid ${theme.border}`, borderRadius: "16px", padding: "32px" }}>
-          <ul style={{ listStyle: "none", padding: 0 }}>
+          <ul style={{ listStyle: "none", padding: 0, fontSize: "15px" }}>
             <li style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}><span>Overall Efficiency Score</span><span style={{ color: theme.success, fontFamily: "'JetBrains Mono', monospace", fontSize: "28px" }}>78/100</span></li>
-            {/* ... rest of the list items exactly as before ... */}
+            <li style={{ marginBottom: "16px" }}>Category breakdowns: Storage &amp; Layout • B2C Operations • B2B Operations • Documentation • Staffing</li>
+            <li style={{ marginBottom: "16px" }}>High-risk areas flagged with severity levels</li>
+            <li style={{ marginBottom: "16px" }}>Prioritised recommendations with estimated impact</li>
+            <li style={{ marginBottom: "16px" }}>References to the exact industry studies &amp; benchmarks used</li>
+            <li>Printable &amp; shareable PDF</li>
           </ul>
         </div>
+        <p style={{ textAlign: "center", color: theme.textMuted, marginTop: "24px", fontSize: "14px" }}>Generated by technology. Curated by warehouse operations experience.</p>
       </section>
 
       {/* WHO IT’S FOR */}
@@ -135,7 +155,9 @@ function FullLandingView({ onStart }) {
         <div style={{ maxWidth: "640px", margin: "0 auto" }}>
           <h2 style={{ fontSize: "32px", fontWeight: 700, marginBottom: "16px" }}>Ready to find your efficiency leaks?</h2>
           <p style={{ fontSize: "18px", opacity: 0.9, marginBottom: "32px" }}>Start the audit — it only takes 15 minutes and could save you thousands.</p>
-          <button onClick={onStart} style={{ background: "#fff", color: theme.accent, padding: "18px 48px", borderRadius: "9999px", fontSize: "18px", fontWeight: 600, border: "none", cursor: "pointer" }}>
+          <button 
+            onClick={onStart}
+            style={{ background: "#fff", color: theme.accent, padding: "18px 48px", borderRadius: "9999px", fontSize: "18px", fontWeight: 600, border: "none", cursor: "pointer" }}>
             START YOUR WAREHOUSE AUDIT →
           </button>
         </div>
@@ -148,7 +170,6 @@ function FullLandingView({ onStart }) {
     </div>
   );
 }
-
 /* ─── Main App (only change is swapping LandingView for FullLandingView) ─── */
 export default function WarehouseAuditTool() {
   const [view, setView] = useState("landing");
