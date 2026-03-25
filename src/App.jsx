@@ -606,7 +606,7 @@ function LandingView({ onStart }) {
     <div style={{ textAlign: "center", padding: "40px 20px" }}>
       <div style={{ fontSize: "11px", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "3px", color: theme.accent, textTransform: "uppercase", marginBottom: "24px" }}>Warehouse Operations Audit</div>
       <h1 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(28px, 5vw, 42px)", fontWeight: 700, color: theme.text, lineHeight: 1.2, maxWidth: "600px", margin: "0 auto 20px" }}>Find the inefficiencies your warehouse can't see</h1>
-      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "16px", color: theme.textMuted, lineHeight: 1.7, maxWidth: "520px", margin: "0 auto 40px" }}>Answer questions about your warehouse operations across five critical areas. Get a detailed, AI-powered,warehouse experience curated audit report with prioritised recommendations to cut costs, speed up dispatch, and fix what's slowing you down.</p>
+      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "16px", color: theme.textMuted, lineHeight: 1.7, maxWidth: "520px", margin: "0 auto 40px" }}>Answer questions about your warehouse operations across five critical areas. Get a detailed, AI-powered, warehouse experience curated audit report with prioritised recommendations to cut costs, speed up dispatch, and fix what's slowing you down.</p>
       <div style={{ display: "flex", justifyContent: "center", gap: "32px", marginBottom: "48px", flexWrap: "wrap" }}>
         {[{ num: "15", label: "min to complete" }, { num: "5", label: "areas audited" }, { num: "$99", label: "per report" }].map((stat) => (
           <div key={stat.label}>
