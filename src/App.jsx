@@ -377,25 +377,77 @@ function ReportView({ report, onBack }) {
     const pw = window.open("", "_blank");
     pw.document.write(`<!DOCTYPE html><html><head><title>Warehouse Audit Report</title>
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-      <style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;color:#1A1D26;padding:40px;max-width:800px;margin:0 auto;line-height:1.6}h1{font-size:24px;margin-bottom:8px}h2{font-size:18px;margin:28px 0 12px;color:#B5654A}h3{font-size:15px;margin:16px 0 8px}p{margin-bottom:10px;font-size:14px}.score{font-family:'JetBrains Mono',monospace;font-size:48px;font-weight:700;color:#B5654A}.badge{display:inline-block;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;text-transform:uppercase;font-family:'JetBrains Mono',monospace}.finding{padding:8px 0;border-bottom:1px solid #E4DED8;font-size:14px}.rec{padding:12px 0;border-bottom:1px solid #E4DED8}.rec-p{font-family:'JetBrains Mono',monospace;font-size:11px;color:#B5654A}.rec-a{font-weight:600;font-size:14px;margin:4px 0}.rec-i{font-size:13px;color:#6B6460}.section{page-break-inside:avoid;margin-bottom:24px;padding:20px;border:1px solid #E4DED8;border-radius:8px}@media print{body{padding:20px}.section{break-inside:avoid}}</style></head><body>`);
-    pw.document.write(`<h1>Warehouse Operations Audit Report</h1><p style="color:#6B6460;margin-bottom:24px">Generated ${new Date().toLocaleDateString("en-AU",{day:"numeric",month:"long",year:"numeric"})}</p>`);
-    pw.document.write(`<div class="score">${report.overall_score}/100</div><p style="margin:12px 0 28px">${report.executive_summary}</p>`);
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; color: #1A1D26; padding: 40px 48px; max-width: 800px; margin: 0 auto; line-height: 1.7; font-size: 13px; }
+        h1 { font-size: 22px; margin-bottom: 4px; text-align: center; }
+        h2 { font-size: 16px; margin: 0 0 12px; color: #B5654A; }
+        h3 { font-size: 13px; margin: 14px 0 8px; text-transform: uppercase; letter-spacing: 1px; color: #A69E98; font-family: 'JetBrains Mono', monospace; }
+        p { margin-bottom: 10px; }
+        .date { text-align: center; color: #6B6460; font-size: 12px; margin-bottom: 28px; }
+        .score-block { text-align: center; margin-bottom: 24px; padding: 20px 0; }
+        .score { font-family: 'JetBrains Mono', monospace; font-size: 52px; font-weight: 700; color: #B5654A; }
+        .score-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #A69E98; margin-top: 4px; }
+        .summary { text-align: center; max-width: 600px; margin: 0 auto 28px; color: #1A1D26; font-size: 14px; line-height: 1.7; }
+        .badge { display: inline-block; padding: 2px 10px; border-radius: 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; margin-left: 8px; }
+        .section-score { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; float: right; }
+        .finding { padding: 8px 0; border-bottom: 1px solid #E4DED8; font-size: 13px; line-height: 1.7; break-inside: avoid; page-break-inside: avoid; }
+        .rec { padding: 14px 0; border-bottom: 1px solid #E4DED8; break-inside: avoid; page-break-inside: avoid; }
+        .rec-p { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #B5654A; margin-bottom: 4px; }
+        .rec-a { font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+        .rec-i { font-size: 13px; color: #4A4440; line-height: 1.7; }
+        .section { break-inside: avoid; page-break-inside: avoid; margin-bottom: 28px; padding: 20px 24px; border: 1px solid #E4DED8; border-radius: 8px; background: #FAFAF8; }
+        .qw-block { break-inside: avoid; page-break-inside: avoid; margin-bottom: 24px; padding: 16px 20px; border: 1px solid #1A9960; border-radius: 8px; background: rgba(26,153,96,0.04); }
+        .sp-block { break-inside: avoid; page-break-inside: avoid; margin-bottom: 24px; padding: 16px 20px; border: 1px solid #B5654A; border-radius: 8px; background: rgba(181,101,74,0.04); }
+        .qw-item { padding: 6px 0; font-size: 13px; line-height: 1.7; break-inside: avoid; page-break-inside: avoid; }
+        .sp-item { padding: 6px 0; font-size: 13px; line-height: 1.7; break-inside: avoid; page-break-inside: avoid; }
+        .ref-block { margin-top: 28px; padding-top: 16px; border-top: 1px solid #E4DED8; break-inside: avoid; page-break-inside: avoid; }
+        .ref-item { font-size: 10px; color: #6B6460; padding: 3px 0; font-family: 'JetBrains Mono', monospace; line-height: 1.6; }
+        @media print {
+          body { padding: 24px 32px; }
+          .section, .rec, .finding, .qw-block, .sp-block, .qw-item, .sp-item, .ref-block { break-inside: avoid !important; page-break-inside: avoid !important; }
+        }
+      </style></head><body>`);
+
+    // Title and date
+    pw.document.write(`<h1>Warehouse Operations Audit Report</h1>`);
+    pw.document.write(`<div class="date">Generated ${new Date().toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })}</div>`);
+
+    // Centered score
+    pw.document.write(`<div class="score-block"><div class="score">${report.overall_score}/100</div><div class="score-label">Overall Operations Score</div></div>`);
+
+    // Executive summary
+    pw.document.write(`<div class="summary">${report.executive_summary}</div>`);
+
+    // Quick wins on first page
+    pw.document.write(`<div class="qw-block"><h2 style="color:#1A9960;margin-bottom:10px;">Quick Wins — Implement This Week</h2>`);
+    report.quick_wins.forEach((q) => pw.document.write(`<div class="qw-item"><span style="color:#1A9960;font-weight:700;margin-right:8px;">✓</span>${q}</div>`));
+    pw.document.write(`</div>`);
+
+    // Strategic priorities on first page
+    pw.document.write(`<div class="sp-block"><h2 style="color:#B5654A;margin-bottom:10px;">Strategic Priorities — Next 3–6 Months</h2>`);
+    report.strategic_priorities.forEach((s) => pw.document.write(`<div class="sp-item"><span style="color:#B5654A;font-weight:700;margin-right:8px;">→</span>${s}</div>`));
+    pw.document.write(`</div>`);
+
+    // Detailed sections
     report.sections.forEach((s) => {
       const rc = RISK_COLORS[s.risk_level] || RISK_COLORS.moderate;
-      pw.document.write(`<div class="section"><h2>${s.title} <span class="badge" style="background:${rc.bg};color:${rc.text};border:1px solid ${rc.border}">${rc.label}</span> — ${s.score}/100</h2><h3>Findings</h3>`);
+      pw.document.write(`<div class="section">`);
+      pw.document.write(`<h2>${s.title} <span class="badge" style="background:${rc.bg};color:${rc.text};border:1px solid ${rc.border}">${rc.label} risk</span><span class="section-score">${s.score}/100</span></h2>`);
+      pw.document.write(`<h3>Findings</h3>`);
       s.findings.forEach((f) => pw.document.write(`<div class="finding">${f}</div>`));
       pw.document.write(`<h3 style="margin-top:16px">Recommendations</h3>`);
       s.recommendations.forEach((r) => pw.document.write(`<div class="rec"><div class="rec-p">Priority ${r.priority} · ${r.effort} effort${r.timeframe ? ' · ' + r.timeframe : ''}</div><div class="rec-a">${r.action}</div><div class="rec-i">${r.impact}</div></div>`));
       pw.document.write(`</div>`);
     });
-    pw.document.write(`<h2>Quick Wins</h2>`);
-    report.quick_wins.forEach((q) => pw.document.write(`<div class="finding">✓ ${q}</div>`));
-    pw.document.write(`<h2>Strategic Priorities</h2>`);
-    report.strategic_priorities.forEach((s) => pw.document.write(`<div class="finding">→ ${s}</div>`));
+
+    // References
     if (report.references && report.references.length > 0) {
-      pw.document.write(`<h2 style="color:#6B6460;font-size:15px;">References</h2>`);
-      report.references.forEach((r) => pw.document.write(`<div style="font-size:11px;color:#6B6460;padding:4px 0;border-bottom:1px solid #E4DED8;font-family:'JetBrains Mono',monospace;">${r}</div>`));
+      pw.document.write(`<div class="ref-block"><h3 style="color:#6B6460;">References</h3>`);
+      report.references.forEach((r) => pw.document.write(`<div class="ref-item">${r}</div>`));
+      pw.document.write(`</div>`);
     }
+
     pw.document.write(`</body></html>`);
     pw.document.close();
     pw.onload = () => pw.print();
