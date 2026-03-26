@@ -225,12 +225,12 @@ function formatAnswersForPrompt(answers) {
   return output;
 }
 
-async function generateReport(answers) {
+async function generateReport(answers, email) {
   const formattedAnswers = formatAnswersForPrompt(answers);
   const response = await fetch("/api/generate-report", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ answers: formattedAnswers }),
+    body: JSON.stringify({ answers: formattedAnswers, email }),
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || "Report generation failed");
@@ -372,7 +372,7 @@ function ScoreRing({ score, size = 100 }) {
 }
 
 /* ─── Report View ─── */
-function ReportView({ report, onBack }) {
+function ReportView({ report, onBack, email }) {
   const handlePrint = () => {
     const pw = window.open("", "_blank");
     pw.document.write(`<!DOCTYPE html><html><head><title>Warehouse Audit Report</title>
@@ -455,6 +455,12 @@ function ReportView({ report, onBack }) {
 
   return (
     <div>
+      {email && (
+        <div style={{ background: theme.successDim, border: `1px solid ${theme.success}`, borderRadius: "8px", padding: "14px 20px", marginBottom: "24px", display: "flex", alignItems: "center", gap: "10px" }}>
+          <span style={{ color: theme.success, fontSize: "18px" }}>✓</span>
+          <span style={{ fontSize: "14px", color: theme.text }}>A PDF copy of this report and your invoice have been sent to <strong>{email}</strong></span>
+        </div>
+      )}
       <div style={{ textAlign: "center", marginBottom: "32px" }}>
         <div style={{ fontSize: "11px", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "3px", color: theme.accent, textTransform: "uppercase", marginBottom: "16px" }}>Warehouse Operations Audit Report</div>
         <div style={{ fontSize: "12px", color: theme.textMuted, fontFamily: "'JetBrains Mono', monospace" }}>Generated {new Date().toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })}</div>
@@ -553,7 +559,7 @@ function LoadingView() {
 }
 
 /* ─── Summary View ─── */
-function SummaryView({ answers, onBack, onGenerate }) {
+function SummaryView({ answers, onBack, onGenerate, email, onEmailChange }) {
   const allQs = Object.values(QUESTIONS).flat();
   const totalAnswered = allQs.filter((q) => {
     const val = answers[q.id];
@@ -592,6 +598,24 @@ function SummaryView({ answers, onBack, onGenerate }) {
         </div>
       ))}
 
+      <div style={{ background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: "12px", padding: "24px", marginBottom: "16px" }}>
+        <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "15px", color: theme.accent, fontWeight: 600, marginBottom: "8px" }}>Receive your report</h3>
+        <p style={{ fontSize: "13px", color: theme.textMuted, marginBottom: "16px", lineHeight: 1.6 }}>Enter your email to receive a PDF copy of your audit report. No spam — just your report.</p>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => onEmailChange(e.target.value)}
+          placeholder="you@yourcompany.com.au"
+          style={{
+            width: "100%", padding: "14px 16px", background: theme.bg, border: `1px solid ${theme.border}`,
+            borderRadius: "8px", fontSize: "15px", fontFamily: "'DM Sans', sans-serif", color: theme.text,
+            outline: "none", boxSizing: "border-box",
+          }}
+          onFocus={(e) => (e.target.style.borderColor = theme.borderFocus)}
+          onBlur={(e) => (e.target.style.borderColor = theme.border)}
+        />
+      </div>
+
       <div style={{ display: "flex", gap: "12px", marginTop: "24px" }}>
         <button onClick={onBack} style={{ flex: 1, padding: "14px", background: "transparent", border: `1px solid ${theme.border}`, borderRadius: "8px", color: theme.textMuted, fontSize: "14px", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: "pointer" }}>← Edit Answers</button>
         <button onClick={onGenerate} style={{ flex: 2, padding: "14px", background: theme.accent, border: "none", borderRadius: "8px", color: "#fff", fontSize: "14px", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: "pointer", boxShadow: `0 0 24px ${theme.accentGlow}` }}>Generate Audit Report — $99 AUD</button>
@@ -606,7 +630,7 @@ function LandingView({ onStart }) {
     <div style={{ textAlign: "center", padding: "40px 20px" }}>
       <div style={{ fontSize: "11px", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "3px", color: theme.accent, textTransform: "uppercase", marginBottom: "24px" }}>Warehouse Operations Audit</div>
       <h1 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(28px, 5vw, 42px)", fontWeight: 700, color: theme.text, lineHeight: 1.2, maxWidth: "600px", margin: "0 auto 20px" }}>Find the inefficiencies your warehouse can't see</h1>
-      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "16px", color: theme.textMuted, lineHeight: 1.7, maxWidth: "520px", margin: "0 auto 40px" }}>Answer questions about your warehouse operations across five critical areas. Get a detailed, AI-powered, warehouse experience curated audit report with prioritised recommendations to cut costs, speed up dispatch, and fix what's slowing you down.</p>
+      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "16px", color: theme.textMuted, lineHeight: 1.7, maxWidth: "520px", margin: "0 auto 40px" }}>Answer questions about your warehouse operations across five critical areas. Get a detailed, AI-powered audit report with prioritised recommendations to cut costs, speed up dispatch, and fix what's slowing you down.</p>
       <div style={{ display: "flex", justifyContent: "center", gap: "32px", marginBottom: "48px", flexWrap: "wrap" }}>
         {[{ num: "15", label: "min to complete" }, { num: "5", label: "areas audited" }, { num: "$99", label: "per report" }].map((stat) => (
           <div key={stat.label}>
@@ -636,6 +660,7 @@ export default function WarehouseAuditTool() {
   const [answers, setAnswers] = useState({});
   const [report, setReport] = useState(null);
   const [error, setError] = useState(null);
+  const [customerEmail, setCustomerEmail] = useState("");
   const topRef = useRef(null);
 
   const currentCategory = CATEGORIES[currentCategoryIndex];
@@ -666,11 +691,15 @@ export default function WarehouseAuditTool() {
   };
 
   const handleGenerate = async () => {
+    if (!customerEmail || !customerEmail.includes("@")) {
+      setError("Please enter a valid email address to receive your report.");
+      return;
+    }
     setView("loading");
     setError(null);
     topRef.current?.scrollIntoView({ behavior: "smooth" });
     try {
-      const result = await generateReport(answers);
+      const result = await generateReport(answers, customerEmail);
       setReport(result);
       setView("report");
     } catch (err) {
@@ -735,11 +764,11 @@ export default function WarehouseAuditTool() {
         )}
 
         {view === "summary" && (
-          <SummaryView answers={answers} onBack={() => { setView("audit"); setCurrentCategoryIndex(CATEGORIES.length - 1); }} onGenerate={handleGenerate} />
+          <SummaryView answers={answers} onBack={() => { setView("audit"); setCurrentCategoryIndex(CATEGORIES.length - 1); }} onGenerate={handleGenerate} email={customerEmail} onEmailChange={setCustomerEmail} />
         )}
 
         {view === "loading" && <LoadingView />}
-        {view === "report" && report && <ReportView report={report} onBack={() => setView("summary")} />}
+        {view === "report" && report && <ReportView report={report} onBack={() => setView("summary")} email={customerEmail} />}
       </div>
     </div>
   );
