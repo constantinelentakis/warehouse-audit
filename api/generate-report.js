@@ -1,3 +1,288 @@
+import PdfPrinter from "pdfmake";
+import { Resend } from "resend";
+
+export const maxDuration = 60;
+
+const fonts = {
+  Helvetica: {
+    normal: "Helvetica",
+    bold: "Helvetica-Bold",
+    italics: "Helvetica-Oblique",
+    bolditalics: "Helvetica-BoldOblique",
+  },
+};
+
+function buildPdf(report) {
+  const printer = new PdfPrinter(fonts);
+  const date = new Date().toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" });
+
+  const riskColor = (level) => {
+    const map = { critical: "#C43D3D", high: "#D4930D", moderate: "#B5654A", low: "#1A9960" };
+    return map[level] || "#B5654A";
+  };
+
+  const content = [
+    { text: "Warehouse Operations Audit Report", fontSize: 22, bold: true, alignment: "center", margin: [0, 0, 0, 4] },
+    { text: `Generated ${date}`, fontSize: 10, color: "#6B6460", alignment: "center", margin: [0, 0, 0, 28] },
+    { text: `${report.overall_score}/100`, fontSize: 48, bold: true, color: "#B5654A", alignment: "center", margin: [0, 0, 0, 4] },
+    { text: "Overall Operations Score", fontSize: 10, color: "#A69E98", alignment: "center", margin: [0, 0, 0, 20] },
+    { text: report.executive_summary, fontSize: 12, alignment: "center", color: "#1A1D26", lineHeight: 1.6, margin: [30, 0, 30, 28] },
+  ];
+
+  // Quick wins
+  if (report.quick_wins && report.quick_wins.length > 0) {
+    content.push({ text: "Quick Wins — Implement This Week", fontSize: 14, bold: true, color: "#1A9960", margin: [0, 0, 0, 8] });
+    report.quick_wins.forEach((qw) => {
+      content.push({ text: [{ text: "✓  ", bold: true, color: "#1A9960" }, { text: qw }], fontSize: 11, lineHeight: 1.6, margin: [0, 0, 0, 6] });
+    });
+    content.push({ text: "", margin: [0, 0, 0, 16] });
+  }
+
+  // Strategic priorities
+  if (report.strategic_priorities && report.strategic_priorities.length > 0) {
+    content.push({ text: "Strategic Priorities — Next 3–6 Months", fontSize: 14, bold: true, color: "#B5654A", margin: [0, 0, 0, 8] });
+    report.strategic_priorities.forEach((sp) => {
+      content.push({ text: [{ text: "→  ", bold: true, color: "#B5654A" }, { text: sp }], fontSize: 11, lineHeight: 1.6, margin: [0, 0, 0, 6] });
+    });
+    content.push({ text: "", margin: [0, 0, 0, 16] });
+  }
+
+  // Sections
+  (report.sections || []).forEach((section) => {
+    const rc = riskColor(section.risk_level);
+    content.push({
+      stack: [
+        {
+          columns: [
+            { text: section.title, fontSize: 15, bold: true, color: "#1A1D26", width: "*" },
+            { text: `${(section.risk_level || "").toUpperCase()} RISK — ${section.score}/100`, fontSize: 9, bold: true, color: rc, alignment: "right", width: "auto", margin: [0, 4, 0, 0] },
+          ],
+          margin: [0, 0, 0, 12],
+        },
+        { text: "FINDINGS", fontSize: 9, bold: true, color: "#A69E98", letterSpacing: 1, margin: [0, 0, 0, 6] },
+        ...(section.findings || []).map((f) => ({
+          text: f, fontSize: 11, color: "#1A1D26", lineHeight: 1.6, margin: [0, 0, 0, 8],
+        })),
+        { text: "", margin: [0, 0, 0, 8] },
+        { text: "RECOMMENDATIONS", fontSize: 9, bold: true, color: "#A69E98", letterSpacing: 1, margin: [0, 0, 0, 6] },
+        ...(section.recommendations || []).map((rec) => ({
+          stack: [
+            { text: `Priority ${rec.priority}  ·  ${rec.effort} effort${rec.timeframe ? "  ·  " + rec.timeframe : ""}`, fontSize: 9, color: "#B5654A", bold: true, margin: [0, 0, 0, 4] },
+            { text: rec.action, fontSize: 12, bold: true, color: "#1A1D26", margin: [0, 0, 0, 4] },
+            { text: rec.impact, fontSize: 11, color: "#4A4440", lineHeight: 1.7, margin: [0, 0, 0, 12] },
+          ],
+          unbreakable: true,
+        })),
+      ],
+      unbreakable: false,
+      margin: [0, 8, 0, 24],
+    });
+    content.push({ canvas: [{ type: "line", x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5, lineColor: "#E4DED8" }], margin: [0, 0, 0, 16] });
+  });
+
+  // References
+  if (report.references && report.references.length > 0) {
+    content.push({ text: "REFERENCES", fontSize: 9, bold: true, color: "#A69E98", letterSpacing: 1, margin: [0, 12, 0, 8] });
+    report.references.forEach((ref) => {
+      content.push({ text: ref, fontSize: 9, color: "#6B6460", lineHeight: 1.5, margin: [0, 0, 0, 3] });
+    });
+  }
+
+  const docDefinition = {
+    pageSize: "A4",
+    pageMargins: [44, 50, 44, 50],
+    defaultStyle: { font: "Helvetica", fontSize: 11, lineHeight: 1.4 },
+    footer: (currentPage, pageCount) => ({
+      columns: [
+        { text: "Warehouse Operations Audit", fontSize: 8, color: "#A69E98", margin: [44, 0, 0, 0] },
+        { text: `Page ${currentPage} of ${pageCount}`, fontSize: 8, color: "#A69E98", alignment: "right", margin: [0, 0, 44, 0] },
+      ],
+    }),
+    content,
+  };
+
+  const pdfDoc = printer.createPdfKitDocument(docDefinition);
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    pdfDoc.on("data", (chunk) => chunks.push(chunk));
+    pdfDoc.on("end", () => resolve(Buffer.concat(chunks)));
+    pdfDoc.on("error", reject);
+    pdfDoc.end();
+  });
+}
+
+async function sendEmail(email, reportBuffer, invoiceBuffer, report, invoiceNumber) {
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const { error } = await resend.emails.send({
+    from: process.env.EMAIL_FROM || "Warehouse Audit <onboarding@resend.dev>",
+    to: [email],
+    subject: `Your Warehouse Audit Report — Score: ${report.overall_score}/100`,
+    html: `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 500px;">
+        <h1 style="font-size: 20px; color: #1A1D26;">Your Warehouse Audit Report</h1>
+        <p style="color: #6B6460; font-size: 14px; line-height: 1.6;">
+          Overall Score: <strong style="color: #B5654A; font-size: 18px;">${report.overall_score}/100</strong>
+        </p>
+        <p style="color: #6B6460; font-size: 14px; line-height: 1.6;">
+          Your full audit report and invoice (${invoiceNumber}) are attached as PDFs.
+        </p>
+      </div>
+    `,
+    attachments: [
+      {
+        filename: "warehouse-audit-report.pdf",
+        content: reportBuffer,
+      },
+      {
+        filename: `invoice-${invoiceNumber}.pdf`,
+        content: invoiceBuffer,
+      },
+    ],
+  });
+  if (error) {
+    console.error("Resend error:", error);
+    throw new Error(JSON.stringify(error));
+  }
+}
+
+function generateInvoiceNumber() {
+  const now = new Date();
+  const y = now.getFullYear().toString().slice(-2);
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  const h = String(now.getHours()).padStart(2, "0");
+  const min = String(now.getMinutes()).padStart(2, "0");
+  const s = String(now.getSeconds()).padStart(2, "0");
+  return `WA-${y}${m}${d}-${h}${min}${s}`;
+}
+
+function buildInvoice(email, invoiceNumber) {
+  const printer = new PdfPrinter(fonts);
+  const date = new Date().toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" });
+  const businessName = process.env.BUSINESS_NAME || "Trading Name";
+  const businessAbn = process.env.BUSINESS_ABN || "00 000 000 000";
+
+  const docDefinition = {
+    pageSize: "A4",
+    pageMargins: [50, 50, 50, 50],
+    defaultStyle: { font: "Helvetica", fontSize: 10, lineHeight: 1.4, color: "#1A1D26" },
+    content: [
+      // Header
+      {
+        columns: [
+          {
+            stack: [
+              { text: "INVOICE", fontSize: 28, bold: true, color: "#B5654A", margin: [0, 0, 0, 4] },
+              { text: `Invoice No: ${invoiceNumber}`, fontSize: 10, color: "#6B6460" },
+              { text: `Date: ${date}`, fontSize: 10, color: "#6B6460" },
+            ],
+            width: "*",
+          },
+          {
+            stack: [
+              { text: businessName, fontSize: 14, bold: true, alignment: "right" },
+              { text: `ABN: ${businessAbn}`, fontSize: 10, color: "#6B6460", alignment: "right", margin: [0, 4, 0, 0] },
+              { text: "Not registered for GST", fontSize: 9, color: "#A69E98", italics: true, alignment: "right", margin: [0, 4, 0, 0] },
+            ],
+            width: "auto",
+          },
+        ],
+        margin: [0, 0, 0, 40],
+      },
+
+      // Bill To
+      { text: "BILL TO", fontSize: 9, bold: true, color: "#A69E98", letterSpacing: 1, margin: [0, 0, 0, 6] },
+      { text: email, fontSize: 11, margin: [0, 0, 0, 30] },
+
+      // Line items table
+      {
+        table: {
+          headerRows: 1,
+          widths: ["*", 80, 80, 80],
+          body: [
+            [
+              { text: "Description", bold: true, fillColor: "#F5F1EE", margin: [8, 8, 8, 8], fontSize: 10 },
+              { text: "Qty", bold: true, fillColor: "#F5F1EE", alignment: "center", margin: [8, 8, 8, 8], fontSize: 10 },
+              { text: "Unit Price", bold: true, fillColor: "#F5F1EE", alignment: "right", margin: [8, 8, 8, 8], fontSize: 10 },
+              { text: "Amount", bold: true, fillColor: "#F5F1EE", alignment: "right", margin: [8, 8, 8, 8], fontSize: 10 },
+            ],
+            [
+              {
+                stack: [
+                  { text: "Warehouse Operations Audit Report", fontSize: 11, bold: true },
+                  { text: "AI-powered audit across 5 operational areas with prioritised recommendations backed by peer-reviewed research.", fontSize: 9, color: "#6B6460", margin: [0, 4, 0, 0] },
+                ],
+                margin: [8, 10, 8, 10],
+              },
+              { text: "1", alignment: "center", margin: [8, 10, 8, 10] },
+              { text: "$99.00", alignment: "right", margin: [8, 10, 8, 10] },
+              { text: "$99.00", alignment: "right", margin: [8, 10, 8, 10] },
+            ],
+          ],
+        },
+        layout: {
+          hLineWidth: (i, node) => (i === 0 || i === 1 || i === node.table.body.length) ? 0.5 : 0,
+          vLineWidth: () => 0,
+          hLineColor: () => "#E4DED8",
+          paddingLeft: () => 0,
+          paddingRight: () => 0,
+          paddingTop: () => 0,
+          paddingBottom: () => 0,
+        },
+      },
+
+      // Totals
+      {
+        columns: [
+          { text: "", width: "*" },
+          {
+            width: 240,
+            stack: [
+              {
+                columns: [
+                  { text: "Subtotal", fontSize: 10, color: "#6B6460", width: "*" },
+                  { text: "$99.00", fontSize: 10, alignment: "right", width: "auto" },
+                ],
+                margin: [0, 16, 0, 8],
+              },
+              {
+                columns: [
+                  { text: "GST", fontSize: 10, color: "#6B6460", width: "*" },
+                  { text: "N/A", fontSize: 10, color: "#A69E98", alignment: "right", width: "auto" },
+                ],
+                margin: [0, 0, 0, 8],
+              },
+              { canvas: [{ type: "line", x1: 0, y1: 0, x2: 240, y2: 0, lineWidth: 0.5, lineColor: "#E4DED8" }], margin: [0, 4, 0, 8] },
+              {
+                columns: [
+                  { text: "Total (AUD)", fontSize: 14, bold: true, width: "*" },
+                  { text: "$99.00", fontSize: 14, bold: true, color: "#B5654A", alignment: "right", width: "auto" },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+
+      // Footer notes
+      { text: "", margin: [0, 0, 0, 40] },
+      { canvas: [{ type: "line", x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5, lineColor: "#E4DED8" }], margin: [0, 0, 0, 16] },
+      { text: "Payment has been received. No further action required.", fontSize: 10, color: "#1A9960", bold: true, margin: [0, 0, 0, 8] },
+      { text: `This invoice was issued by ${businessName} (ABN ${businessAbn}). The supplier is not registered for GST. No GST has been charged.`, fontSize: 9, color: "#A69E98", lineHeight: 1.5, margin: [0, 0, 0, 4] },
+      { text: "This document serves as your proof of purchase for tax purposes.", fontSize: 9, color: "#A69E98", lineHeight: 1.5 },
+    ],
+  };
+
+  const pdfDoc = printer.createPdfKitDocument(docDefinition);
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    pdfDoc.on("data", (chunk) => chunks.push(chunk));
+    pdfDoc.on("end", () => resolve(Buffer.concat(chunks)));
+    pdfDoc.on("error", reject);
+    pdfDoc.end();
+  });
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -9,7 +294,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { answers } = req.body;
+    const { answers, email } = req.body;
     if (!answers) {
       return res.status(400).json({ error: "No answers provided" });
     }
@@ -164,6 +449,7 @@ Respond ONLY with valid JSON. No markdown, no backticks, no preamble, no trailin
 
 Generate exactly 5 sections: Warehouse Layout & Space Utilisation, B2C Pick/Pack Workflow, B2B Pick/Pack Workflow, Staffing & Labour Allocation, B2B Document & Transfer Flow. Each section: 3-4 findings (2-3 sentences each), 3-4 prioritised recommendations (4-8 sentences each). Include 4-5 quick wins and 3 strategic priorities. Add a references section listing only the studies actually cited in the report. Scores should reflect genuine assessment based on their answers.`;
 
+    // Step 1: Generate report via Claude
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -205,6 +491,22 @@ Generate exactly 5 sections: Warehouse Layout & Space Utilisation, B2C Pick/Pack
     }
 
     const report = JSON.parse(clean);
+
+    // Step 2: Generate PDF report + invoice, send email (if email provided)
+    if (email && process.env.RESEND_API_KEY) {
+      try {
+        const invoiceNumber = generateInvoiceNumber();
+        const [reportBuffer, invoiceBuffer] = await Promise.all([
+          buildPdf(report),
+          buildInvoice(email, invoiceNumber),
+        ]);
+        await sendEmail(email, reportBuffer, invoiceBuffer, report, invoiceNumber);
+      } catch (emailErr) {
+        console.error("Email/PDF delivery failed:", emailErr);
+        // Don't fail the whole request if email fails — customer still gets the report in-app
+      }
+    }
+
     return res.status(200).json(report);
   } catch (error) {
     console.error("Report generation error:", error);
