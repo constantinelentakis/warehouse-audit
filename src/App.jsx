@@ -321,7 +321,27 @@ function SliderInput({ question, value = {}, onChange }) {
           <div key={zone} style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             <span style={{ width: "130px", fontSize: "13px", color: theme.textMuted, fontFamily: "'DM Sans', sans-serif", flexShrink: 0 }}>{zone}</span>
             <input type="range" min="0" max="100" step="5" value={val} onChange={(e) => onChange({ ...value, [zone]: parseInt(e.target.value) })} style={{ flex: 1, accentColor: theme.accent, cursor: "pointer" }} />
-            <span style={{ width: "45px", textAlign: "right", fontFamily: "'JetBrains Mono', monospace", fontSize: "13px", color: val > 0 ? theme.text : theme.textDim }}>{val}%</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "2px", flexShrink: 0 }}>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={val}
+                onChange={(e) => {
+                  const parsed = parseInt(e.target.value);
+                  onChange({ ...value, [zone]: isNaN(parsed) ? 0 : Math.min(100, Math.max(0, parsed)) });
+                }}
+                style={{
+                  width: "52px", textAlign: "right", fontFamily: "'JetBrains Mono', monospace", fontSize: "13px",
+                  color: val > 0 ? theme.text : theme.textDim, background: theme.surface, border: `1px solid ${theme.border}`,
+                  borderRadius: "4px", padding: "4px 6px", outline: "none", boxSizing: "border-box",
+                  MozAppearance: "textfield", WebkitAppearance: "none",
+                }}
+                onFocus={(e) => { e.target.style.borderColor = theme.borderFocus; e.target.select(); }}
+                onBlur={(e) => (e.target.style.borderColor = theme.border)}
+              />
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "13px", color: theme.textDim }}>%</span>
+            </div>
           </div>
         );
       })}
@@ -800,7 +820,7 @@ function LandingView({ onStart }) {
       <h1 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(28px, 5vw, 42px)", fontWeight: 700, color: theme.text, lineHeight: 1.2, maxWidth: "600px", margin: "0 auto 20px" }}>Find the inefficiencies your warehouse can't see</h1>
       <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "16px", color: theme.textMuted, lineHeight: 1.7, maxWidth: "520px", margin: "0 auto 40px" }}>Answer questions about your warehouse operations across five critical areas. Get a detailed, AI-powered audit report with prioritised recommendations to cut costs, speed up dispatch, and fix what's slowing you down.</p>
       <div style={{ display: "flex", justifyContent: "center", gap: "32px", marginBottom: "48px", flexWrap: "wrap" }}>
-        {[{ num: "15", label: "min to complete" }, { num: "5", label: "areas audited" }, { num: "$99", label: "per report" }].map((stat) => (
+        {[{ num: "15", label: "minutes to complete" }, { num: "5", label: "areas audited" }, { num: "$99", label: "per report" }].map((stat) => (
           <div key={stat.label}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "28px", color: theme.accent, fontWeight: 700 }}>{stat.num}</div>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", color: theme.textDim, letterSpacing: "0.5px", marginTop: "4px" }}>{stat.label}</div>
