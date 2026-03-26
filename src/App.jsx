@@ -618,7 +618,7 @@ function SummaryView({ answers, onBack, onGenerate, email, onEmailChange }) {
 
       <div style={{ display: "flex", gap: "12px", marginTop: "24px" }}>
         <button onClick={onBack} style={{ flex: 1, padding: "14px", background: "transparent", border: `1px solid ${theme.border}`, borderRadius: "8px", color: theme.textMuted, fontSize: "14px", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: "pointer" }}>← Edit Answers</button>
-        <button onClick={onGenerate} style={{ flex: 2, padding: "14px", background: theme.accent, border: "none", borderRadius: "8px", color: "#fff", fontSize: "14px", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: "pointer", boxShadow: `0 0 24px ${theme.accentGlow}` }}>Generate Audit Report — $99 AUD</button>
+        <button onClick={onGenerate} style={{ flex: 2, padding: "14px", background: theme.accent, border: "none", borderRadius: "8px", color: "#fff", fontSize: "14px", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: "pointer", boxShadow: `0 0 24px ${theme.accentGlow}` }}>Proceed to Payment — $99 AUD</button>
       </div>
     </div>
   );
@@ -695,20 +695,77 @@ export default function WarehouseAuditTool() {
       setError("Please enter a valid email address to receive your report.");
       return;
     }
-    setView("loading");
     setError(null);
-    topRef.current?.scrollIntoView({ behavior: "smooth" });
     try {
-      const result = await generateReport(answers, customerEmail);
-      setReport(result);
-      setView("report");
+      // Save answers and email to localStorage before redirecting to Stripe
+      localStorage.setItem("wa_answers", JSON.stringify(answers));
+      localStorage.setItem("wa_email", customerEmail);
+
+      // Create Stripe Checkout session
+      const response = await fetch("/api/create-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: customerEmail }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to create checkout session");
+
+      // Redirect to Stripe
+      window.location.href = data.url;
     } catch (err) {
-      console.error("Report generation failed:", err);
-      setError(err.message || "Report generation failed. Please try again.");
+      console.error("Checkout failed:", err);
+      setError(err.message || "Payment failed. Please try again.");
+    }
+  };
+
+  // Handle return from Stripe Checkout
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const payment = params.get("payment");
+
+    if (payment === "success") {
+      // Clean URL without reloading
+      window.history.replaceState({}, "", window.location.pathname);
+
+      // Retrieve saved data from localStorage
+      const savedAnswers = localStorage.getItem("wa_answers");
+      const savedEmail = localStorage.getItem("wa_email");
+
+      if (savedAnswers && savedEmail) {
+        const parsedAnswers = JSON.parse(savedAnswers);
+        setAnswers(parsedAnswers);
+        setCustomerEmail(savedEmail);
+        setView("loading");
+
+        // Generate report
+        generateReport(parsedAnswers, savedEmail)
+          .then((result) => {
+            setReport(result);
+            setView("report");
+            // Clear saved data
+            localStorage.removeItem("wa_answers");
+            localStorage.removeItem("wa_email");
+          })
+          .catch((err) => {
+            console.error("Report generation failed:", err);
+            setError(err.message || "Report generation failed. Please contact support.");
+            setView("summary");
+          });
+      } else {
+        setError("Payment was successful but your questionnaire data could not be found. Please contact lentakisc@gmail.com with your Stripe receipt for a manual report.");
+        setView("landing");
+      }
+    } else if (payment === "cancelled") {
+      window.history.replaceState({}, "", window.location.pathname);
+      // Restore saved data so they can try again
+      const savedAnswers = localStorage.getItem("wa_answers");
+      const savedEmail = localStorage.getItem("wa_email");
+      if (savedAnswers) setAnswers(JSON.parse(savedAnswers));
+      if (savedEmail) setCustomerEmail(savedEmail);
+      setError("Payment was cancelled. Your answers have been saved — you can try again when ready.");
       setView("summary");
     }
-    topRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  }, []);
 
   useEffect(() => {
     const link = document.createElement("link");
