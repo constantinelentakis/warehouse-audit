@@ -624,6 +624,174 @@ function SummaryView({ answers, onBack, onGenerate, email, onEmailChange }) {
   );
 }
 
+/* ─── Legal Pages ─── */
+function LegalPageView({ page, onBack }) {
+  const h1Style = { fontFamily: "'DM Sans', sans-serif", fontSize: "28px", fontWeight: 700, color: theme.accent, marginBottom: "8px" };
+  const h2Style = { fontFamily: "'DM Sans', sans-serif", fontSize: "18px", fontWeight: 700, color: theme.text, marginTop: "32px", marginBottom: "12px" };
+  const pStyle = { fontSize: "14px", color: theme.text, lineHeight: 1.8, marginBottom: "12px" };
+  const liStyle = { fontSize: "14px", color: theme.text, lineHeight: 1.8, marginBottom: "6px", paddingLeft: "8px" };
+  const dateStyle = { fontSize: "13px", color: theme.textMuted, marginBottom: "32px" };
+
+  const H2 = ({ children }) => <h2 style={h2Style}>{children}</h2>;
+  const P = ({ children }) => <p style={pStyle}>{children}</p>;
+  const Li = ({ children }) => <li style={liStyle}>{children}</li>;
+
+  return (
+    <div>
+      <button onClick={onBack} style={{ background: "none", border: "none", color: theme.accent, fontFamily: "'DM Sans', sans-serif", fontSize: "14px", fontWeight: 600, cursor: "pointer", marginBottom: "24px", padding: 0 }}>← Back</button>
+
+      {page === "privacy" && (
+        <div>
+          <h1 style={h1Style}>Privacy Policy</h1>
+          <p style={dateStyle}>Last updated: 26 March 2026</p>
+
+          <P>This Privacy Policy explains how Constantine Jack Lentakis (ABN 70 558 151 101) ("we", "us", or "our") collects, uses, and protects personal information when you use our Warehouse Operations Audit tool (the "Service") at pickrate.com.au.</P>
+          <P>We are committed to protecting your privacy in accordance with the Australian Privacy Principles set out in the Privacy Act 1988 (Cth), even where the small business exemption may apply.</P>
+
+          <H2>1. What personal information we collect</H2>
+          <P>We collect only the minimum information necessary to deliver our Service:</P>
+          <ul><Li>Email address — provided by you when requesting an audit report</Li><Li>Questionnaire responses — information about your warehouse operations that you enter into the audit questionnaire</Li></ul>
+          <P>We do not collect names, phone numbers, physical addresses, payment card details (these are handled entirely by our payment processor), or any other personal information.</P>
+
+          <H2>2. How we collect your information</H2>
+          <P>We collect personal information only when you voluntarily provide it to us through the Service — specifically when you enter your email address and complete the audit questionnaire. We do not collect information from third parties or use tracking technologies to identify you.</P>
+
+          <H2>3. Why we collect your information</H2>
+          <P>We collect and use your personal information for the following purposes:</P>
+          <ul><Li>To generate your personalised warehouse audit report</Li><Li>To deliver your audit report and invoice to your email address</Li><Li>To process your purchase and provide proof of payment</Li></ul>
+          <P>We do not use your information for marketing, advertising, profiling, or any purpose other than delivering the Service you have purchased.</P>
+
+          <H2>4. Automated decision-making</H2>
+          <P>Our Service uses artificial intelligence (specifically, Anthropic's Claude API) to analyse your questionnaire responses and generate a personalised audit report. This means:</P>
+          <ul><Li>Your questionnaire responses are sent to Anthropic's API to generate the report</Li><Li>The recommendations in your report are produced by AI, not by a human consultant</Li><Li>No human reviews your individual responses as part of the report generation process</Li></ul>
+          <P>In accordance with the Privacy and Other Legislation Amendment Act 2024, we disclose that automated decision-making is used in the production of your audit report. The AI analyses the information you provide and generates recommendations based on published warehouse operations research.</P>
+
+          <H2>5. How we store and protect your information</H2>
+          <P>Your email address is processed by Resend (our email delivery service) to send your report and invoice. Your questionnaire responses are processed in memory during report generation and are not stored in a database after your report has been delivered.</P>
+          <P>We take reasonable technical and organisational measures to protect your information, including the use of encrypted connections (HTTPS/TLS) for all data in transit.</P>
+
+          <H2>6. Third-party service providers</H2>
+          <P>We use the following third-party services to operate the Service:</P>
+          <ul><Li>Anthropic (Claude API) — to generate your audit report</Li><Li>Resend — to deliver your report and invoice by email</Li><Li>Vercel — to host the Service</Li><Li>Stripe — to process payments. We do not receive or store your payment card details.</Li></ul>
+          <P>We do not sell, rent, or trade your personal information to any third party.</P>
+
+          <H2>7. Overseas disclosure</H2>
+          <P>Your information may be processed by servers located outside Australia (including in the United States) through our third-party service providers listed above. By using the Service, you consent to this transfer. We take reasonable steps to ensure these providers protect your information in accordance with the Australian Privacy Principles.</P>
+
+          <H2>8. Your rights</H2>
+          <P>You have the right to:</P>
+          <ul><Li>Request access to any personal information we hold about you</Li><Li>Request correction of any inaccurate information</Li><Li>Request deletion of your personal information</Li><Li>Lodge a complaint with the Office of the Australian Information Commissioner (OAIC) if you believe your privacy has been breached</Li></ul>
+          <P>To exercise any of these rights, contact us at lentakisc@gmail.com.</P>
+
+          <H2>9. Data retention</H2>
+          <P>We do not maintain a database of customer information. Your questionnaire responses are processed in memory and discarded after your report is generated. Your email address is retained only in our email delivery service's logs for the purpose of delivery confirmation, and in our payment processor's records as required for tax and accounting purposes.</P>
+
+          <H2>10. Changes to this policy</H2>
+          <P>We may update this Privacy Policy from time to time. The updated version will be posted on our website with a revised "Last updated" date.</P>
+
+          <H2>11. Contact us</H2>
+          <P>If you have questions about this Privacy Policy or wish to exercise your rights, please contact:</P>
+          <P>Constantine Jack Lentakis<br/>Email: lentakisc@gmail.com</P>
+        </div>
+      )}
+
+      {page === "terms" && (
+        <div>
+          <h1 style={h1Style}>Terms & Conditions</h1>
+          <p style={dateStyle}>Last updated: 26 March 2026</p>
+
+          <P>These Terms & Conditions ("Terms") govern your use of the Warehouse Operations Audit tool (the "Service") operated by Constantine Jack Lentakis (ABN 70 558 151 101) ("we", "us", or "our"). By using the Service and purchasing an audit report, you agree to be bound by these Terms.</P>
+
+          <H2>1. The Service</H2>
+          <P>The Service is an AI-powered warehouse operations audit tool. You complete a structured questionnaire about your warehouse operations, and the Service generates a personalised audit report containing findings and recommendations across five operational areas.</P>
+          <P>The report is generated using artificial intelligence and is based on the specific information you provide in the questionnaire, published peer-reviewed warehouse operations research, and Australian workplace health and safety regulations and data.</P>
+          <P>The report is delivered to you both on-screen and as a PDF attachment to the email address you provide.</P>
+
+          <H2>2. Pricing and payment</H2>
+          <P>The Service is priced at $99.00 AUD per audit report. This is the total price. We are not registered for GST and no GST is charged.</P>
+          <P>Payment is processed securely through Stripe. We do not receive, process, or store your payment card details.</P>
+          <P>An invoice is automatically generated and sent to your email address with the report as proof of purchase for your tax records.</P>
+
+          <H2>3. What you receive</H2>
+          <P>Upon successful payment, you receive:</P>
+          <ul><Li>An AI-generated warehouse audit report covering Warehouse Layout & Space Utilisation, B2C Pick/Pack Workflow, B2B Pick/Pack Workflow, Staffing & Labour Allocation, and B2B Document & Transfer Flow</Li><Li>An on-screen interactive version of the report</Li><Li>A PDF copy of the report sent to your email</Li><Li>A PDF invoice sent to your email</Li></ul>
+
+          <H2>4. Refund policy</H2>
+          <P>Because the audit report is a personalised digital product generated specifically from your questionnaire responses, change-of-mind refunds are not available once the report has been generated and delivered.</P>
+          <P>However, under the Australian Consumer Law, consumer guarantees apply to all goods and services, including digital products. You are entitled to a refund if:</P>
+          <ul><Li>The report fails to generate or is not delivered to you</Li><Li>The report does not match the description provided on our website</Li><Li>The Service is not of acceptable quality or not fit for the described purpose</Li></ul>
+          <P>To request a refund, contact us at lentakisc@gmail.com with your invoice number and a description of the issue.</P>
+
+          <H2>5. AI-generated content disclaimer</H2>
+          <P>The audit report is generated by artificial intelligence (Anthropic's Claude). You acknowledge and agree that:</P>
+          <ul><Li>The report contains general recommendations based on your questionnaire responses, not professional consulting advice tailored to your specific business circumstances</Li><Li>The AI may not account for all factors relevant to your warehouse operations</Li><Li>Recommendations are informed by published research, but the analysis and application to your situation is performed by AI, not a human expert</Li><Li>You should independently verify any recommendations before implementing changes to your operations</Li><Li>We are not liable for business decisions you make based on the report</Li></ul>
+          <P>The report is intended as a starting point for operational improvement, not as a substitute for professional warehouse consulting, engineering, safety assessment, or legal advice.</P>
+
+          <H2>6. Limitation of liability</H2>
+          <P>To the maximum extent permitted by law, our total liability arising out of or in connection with the Service is limited to the amount you paid for the report ($99.00 AUD).</P>
+          <P>We are not liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profit, revenue, business, or data.</P>
+          <P>Nothing in these Terms excludes, restricts, or modifies any consumer guarantee, right, or remedy under the Australian Consumer Law that cannot be excluded, restricted, or modified by agreement.</P>
+
+          <H2>7. Intellectual property</H2>
+          <P>The content, design, and functionality of the Service are owned by us and protected by copyright. The audit report generated for you is licensed for your internal business use only. You may not resell, redistribute, or commercially exploit the report or any part of the Service.</P>
+
+          <H2>8. Accuracy of information you provide</H2>
+          <P>The quality of the audit report depends entirely on the accuracy and completeness of the information you provide in the questionnaire. We are not responsible for inaccurate recommendations resulting from incomplete or incorrect responses.</P>
+
+          <H2>9. Availability</H2>
+          <P>We do not guarantee that the Service will be available at all times or free from errors. We may modify, suspend, or discontinue the Service at any time without notice.</P>
+
+          <H2>10. Governing law</H2>
+          <P>These Terms are governed by the laws of the State of Queensland, Australia. Any disputes arising from these Terms or the Service will be subject to the exclusive jurisdiction of the courts of Queensland, Australia.</P>
+
+          <H2>11. Changes to these Terms</H2>
+          <P>We may update these Terms from time to time. The updated version will be posted on our website with a revised "Last updated" date. Your continued use of the Service after any changes constitutes acceptance of the updated Terms.</P>
+
+          <H2>12. Contact us</H2>
+          <P>If you have questions about these Terms, please contact:</P>
+          <P>Constantine Jack Lentakis<br/>Email: lentakisc@gmail.com</P>
+        </div>
+      )}
+
+      {page === "disclaimer" && (
+        <div>
+          <h1 style={h1Style}>AI Disclaimer</h1>
+          <p style={dateStyle}>Last updated: 26 March 2026</p>
+
+          <P>This AI Disclaimer applies to the Warehouse Operations Audit tool (the "Service") operated by Constantine Jack Lentakis (ABN 70 558 151 101).</P>
+
+          <H2>1. AI-generated reports</H2>
+          <P>The audit reports produced by this Service are generated entirely by artificial intelligence, specifically Anthropic's Claude large language model. No human consultant reviews your individual questionnaire responses or writes any part of your report.</P>
+          <P>While the AI draws on a curated library of peer-reviewed research and current Australian workplace health and safety data, the analysis, scoring, and recommendations are produced by an AI system. AI systems can produce errors, and outputs may not fully reflect the complexity of your specific situation.</P>
+
+          <H2>2. Not professional advice</H2>
+          <P>The audit report does not constitute:</P>
+          <ul><Li>Professional warehouse consulting or management advice</Li><Li>Engineering or structural advice</Li><Li>Workplace health and safety compliance advice or assessment</Li><Li>Legal advice</Li><Li>Financial or business planning advice</Li></ul>
+          <P>The report is a general informational product intended to identify potential areas for operational improvement based on the information you provide. It should not be relied upon as the sole basis for making business, safety, or operational decisions.</P>
+
+          <H2>3. Research citations</H2>
+          <P>The report may reference published academic research and industry data to support its recommendations. These citations have been verified for accuracy at the time of inclusion in the system, but:</P>
+          <ul><Li>Research findings may not directly apply to your specific warehouse configuration, workforce, or industry</Li><Li>The AI selects which citations to include based on relevance to your answers — this selection is automated, not curated by a human for your specific case</Li><Li>Research evolves over time, and cited studies may be superseded by newer findings</Li></ul>
+
+          <H2>4. Australian WHS references</H2>
+          <P>The report may reference Australian workplace health and safety regulations, penalty structures, and Safe Work Australia data. These references are for informational purposes only and are current as at the date they were embedded in the system. They do not constitute compliance advice. You should consult the relevant state or territory WHS regulator or a qualified WHS professional for compliance guidance specific to your workplace.</P>
+
+          <H2>5. Limitation of accuracy</H2>
+          <P>The quality of the report depends on the accuracy and completeness of the information you provide. The AI cannot verify your responses, inspect your facility, or account for factors not covered by the questionnaire. Recommendations may not be appropriate for all warehouse environments.</P>
+
+          <H2>6. Your responsibility</H2>
+          <P>You are solely responsible for:</P>
+          <ul><Li>Evaluating whether any recommendation is appropriate for your business</Li><Li>Seeking independent professional advice before implementing significant operational changes</Li><Li>Ensuring any changes you make comply with applicable laws, regulations, and workplace health and safety requirements</Li><Li>Any decisions, actions, or outcomes resulting from the use of the report</Li></ul>
+
+          <H2>7. Contact us</H2>
+          <P>If you have questions about this AI Disclaimer, please contact:</P>
+          <P>Constantine Jack Lentakis<br/>Email: lentakisc@gmail.com</P>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ─── Landing View ─── */
 function LandingView({ onStart }) {
   return (
@@ -661,6 +829,7 @@ export default function WarehouseAuditTool() {
   const [report, setReport] = useState(null);
   const [error, setError] = useState(null);
   const [customerEmail, setCustomerEmail] = useState("");
+  const [legalPage, setLegalPage] = useState(null);
   const topRef = useRef(null);
 
   const currentCategory = CATEGORIES[currentCategoryIndex];
@@ -826,7 +995,26 @@ export default function WarehouseAuditTool() {
 
         {view === "loading" && <LoadingView />}
         {view === "report" && report && <ReportView report={report} onBack={() => setView("summary")} email={customerEmail} />}
+        {view === "legal" && legalPage && <LegalPageView page={legalPage} onBack={() => { setLegalPage(null); setView("landing"); topRef.current?.scrollIntoView({ behavior: "smooth" }); }} />}
       </div>
+
+      <footer style={{ borderTop: `1px solid ${theme.border}`, padding: "24px 32px", textAlign: "center", marginTop: "40px" }}>
+        <div style={{ display: "flex", justifyContent: "center", gap: "24px", flexWrap: "wrap", marginBottom: "12px" }}>
+          {[
+            { label: "Privacy Policy", page: "privacy" },
+            { label: "Terms & Conditions", page: "terms" },
+            { label: "AI Disclaimer", page: "disclaimer" },
+          ].map((link) => (
+            <button key={link.page} onClick={() => { setLegalPage(link.page); setView("legal"); topRef.current?.scrollIntoView({ behavior: "smooth" }); }}
+              style={{ background: "none", border: "none", color: theme.textMuted, fontSize: "12px", fontFamily: "'JetBrains Mono', monospace", cursor: "pointer", textDecoration: "underline", textUnderlineOffset: "3px", padding: 0 }}>
+              {link.label}
+            </button>
+          ))}
+        </div>
+        <div style={{ fontSize: "11px", color: theme.textDim, fontFamily: "'JetBrains Mono', monospace" }}>
+          Constantine Jack Lentakis · ABN 70 558 151 101
+        </div>
+      </footer>
     </div>
   );
 }
