@@ -236,11 +236,6 @@ async function generateReport(answers, email, session_id) {
   if (!response.ok) throw new Error(data.error || "Report generation failed");
   return data;
 }
-  });
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.error || "Report generation failed");
-  return data;
-}
 
 /* ─── UI Components ─── */
 
@@ -960,27 +955,7 @@ useEffect(() => {
     setError("Payment was cancelled. Your answers have been saved — you can try again when ready.");
     setView("summary");
   }
-}, []);
-          .catch((err) => {
-            console.error("Report generation failed:", err);
-            setError(err.message || "Report generation failed. Please contact support.");
-            setView("summary");
-          });
-      } else {
-        setError("Payment was successful but your questionnaire data could not be found. Please contact lentakisc@gmail.com with your Stripe receipt for a manual report.");
-        setView("landing");
-      }
-    } else if (payment === "cancelled") {
-      window.history.replaceState({}, "", window.location.pathname);
-      // Restore saved data so they can try again
-      const savedAnswers = localStorage.getItem("wa_answers");
-      const savedEmail = localStorage.getItem("wa_email");
-      if (savedAnswers) setAnswers(JSON.parse(savedAnswers));
-      if (savedEmail) setCustomerEmail(savedEmail);
-      setError("Payment was cancelled. Your answers have been saved — you can try again when ready.");
-      setView("summary");
-    }
-  }, []);
+}, []);   
 
   useEffect(() => {
     const link = document.createElement("link");
