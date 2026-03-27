@@ -324,8 +324,6 @@ export default async function handler(req, res) {
   }
   // === END OF VERIFICATION ===
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;   // ← this line now comes AFTER the verification
-
     const systemPrompt = `You are an expert warehouse operations consultant with 15+ years of experience optimising small-to-medium e-commerce warehouses in Australia. You are generating a professional warehouse audit report based on questionnaire responses.
 
 ## YOUR CORE RULES
