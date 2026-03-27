@@ -225,12 +225,17 @@ function formatAnswersForPrompt(answers) {
   return output;
 }
 
-async function generateReport(answers, email) {
+async function generateReport(answers, email, session_id) {
   const formattedAnswers = formatAnswersForPrompt(answers);
   const response = await fetch("/api/generate-report", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ answers: formattedAnswers, email }),
+    body: JSON.stringify({ answers: formattedAnswers, email, session_id }),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || "Report generation failed");
+  return data;
+}
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || "Report generation failed");
@@ -908,33 +913,54 @@ export default function WarehouseAuditTool() {
   };
 
   // Handle return from Stripe Checkout
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const payment = params.get("payment");
+useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+  const session_id = params.get("session_id");   // ← NEW: Stripe sends this
+  const payment = params.get("payment");
 
-    if (payment === "success") {
-      // Clean URL without reloading
-      window.history.replaceState({}, "", window.location.pathname);
+  if (session_id || payment === "success") {
+    // Clean URL without reloading
+    window.history.replaceState({}, "", window.location.pathname);
 
-      // Retrieve saved data from localStorage
-      const savedAnswers = localStorage.getItem("wa_answers");
-      const savedEmail = localStorage.getItem("wa_email");
+    // Retrieve saved data from localStorage
+    const savedAnswers = localStorage.getItem("wa_answers");
+    const savedEmail = localStorage.getItem("wa_email");
 
-      if (savedAnswers && savedEmail) {
-        const parsedAnswers = JSON.parse(savedAnswers);
-        setAnswers(parsedAnswers);
-        setCustomerEmail(savedEmail);
-        setView("loading");
+    if (savedAnswers && savedEmail) {
+      const parsedAnswers = JSON.parse(savedAnswers);
+      setAnswers(parsedAnswers);
+      setCustomerEmail(savedEmail);
+      setView("loading");
 
-        // Generate report
-        generateReport(parsedAnswers, savedEmail)
-          .then((result) => {
-            setReport(result);
-            setView("report");
-            // Clear saved data
-            localStorage.removeItem("wa_answers");
-            localStorage.removeItem("wa_email");
-          })
+      // Generate report — NOW SENDS session_id
+      generateReport(parsedAnswers, savedEmail, session_id)
+        .then((result) => {
+          setReport(result);
+          setView("report");
+          // Clear saved data
+          localStorage.removeItem("wa_answers");
+          localStorage.removeItem("wa_email");
+        })
+        .catch((err) => {
+          console.error("Report generation failed:", err);
+          setError(err.message || "Report generation failed. Please contact support.");
+          setView("summary");
+        });
+    } else {
+      setError("Payment was successful but your questionnaire data could not be found. Please contact lentakisc@gmail.com with your Stripe receipt for a manual report.");
+      setView("landing");
+    }
+  } else if (payment === "cancelled") {
+    window.history.replaceState({}, "", window.location.pathname);
+    // Restore saved data so they can try again
+    const savedAnswers = localStorage.getItem("wa_answers");
+    const savedEmail = localStorage.getItem("wa_email");
+    if (savedAnswers) setAnswers(JSON.parse(savedAnswers));
+    if (savedEmail) setCustomerEmail(savedEmail);
+    setError("Payment was cancelled. Your answers have been saved — you can try again when ready.");
+    setView("summary");
+  }
+}, []);
           .catch((err) => {
             console.error("Report generation failed:", err);
             setError(err.message || "Report generation failed. Please contact support.");
