@@ -1,6 +1,8 @@
 import PdfPrinter from "pdfmake";
 import { Resend } from "resend";
+import Stripe from "stripe";
 
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 export const maxDuration = 60;
 
 const fonts = {
@@ -294,10 +296,35 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { answers, email } = req.body;
-    if (!answers) {
-      return res.status(400).json({ error: "No answers provided" });
+  const { answers, email, session_id } = req.body;
+
+  if (!answers) {
+    return res.status(400).json({ error: "No answers provided" });
+  }
+
+  // === STRIPE PAYMENT VERIFICATION (prevents bypass) ===
+  if (!session_id) {
+    return res.status(400).json({ error: "Payment session ID is required" });
+  }
+
+  try {
+    const session = await stripe.checkout.sessions.retrieve(session_id);
+
+    if (session.payment_status !== "paid" || session.status !== "complete") {
+      return res.status(402).json({ error: "Payment has not been completed successfully" });
     }
+
+    // Optional: use email from Stripe if frontend didn't send one
+    if (!email && session.customer_details?.email) {
+      email = session.customer_details.email;
+    }
+  } catch (stripeError) {
+    console.error("Stripe session verification failed:", stripeError);
+    return res.status(400).json({ error: "Invalid or expired payment session" });
+  }
+  // === END OF VERIFICATION ===
+
+  const apiKey = process.env.ANTHROPIC_API_KEY;   // ← this line now comes AFTER the verification
 
     const systemPrompt = `You are an expert warehouse operations consultant with 15+ years of experience optimising small-to-medium e-commerce warehouses in Australia. You are generating a professional warehouse audit report based on questionnaire responses.
 
