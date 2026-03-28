@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect, useRef } from "react";
 
 const CATEGORIES = [
@@ -429,27 +431,19 @@ function ReportView({ report, onBack, email }) {
         }
       </style></head><body>`);
 
-    // Title and date
     pw.document.write(`<h1>Warehouse Operations Audit Report</h1>`);
     pw.document.write(`<div class="date">Generated ${new Date().toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })}</div>`);
-
-    // Centered score
     pw.document.write(`<div class="score-block"><div class="score">${report.overall_score}/100</div><div class="score-label">Overall Operations Score</div></div>`);
-
-    // Executive summary
     pw.document.write(`<div class="summary">${report.executive_summary}</div>`);
 
-    // Quick wins on first page
     pw.document.write(`<div class="qw-block"><h2 style="color:#1A9960;margin-bottom:10px;">Quick Wins — Implement This Week</h2>`);
     report.quick_wins.forEach((q) => pw.document.write(`<div class="qw-item"><span style="color:#1A9960;font-weight:700;margin-right:8px;">✓</span>${q}</div>`));
     pw.document.write(`</div>`);
 
-    // Strategic priorities on first page
     pw.document.write(`<div class="sp-block"><h2 style="color:#B5654A;margin-bottom:10px;">Strategic Priorities — Next 3–6 Months</h2>`);
     report.strategic_priorities.forEach((s) => pw.document.write(`<div class="sp-item"><span style="color:#B5654A;font-weight:700;margin-right:8px;">→</span>${s}</div>`));
     pw.document.write(`</div>`);
 
-    // Detailed sections
     report.sections.forEach((s) => {
       const rc = RISK_COLORS[s.risk_level] || RISK_COLORS.moderate;
       pw.document.write(`<div class="section">`);
@@ -461,7 +455,6 @@ function ReportView({ report, onBack, email }) {
       pw.document.write(`</div>`);
     });
 
-    // References
     if (report.references && report.references.length > 0) {
       pw.document.write(`<div class="ref-block"><h3 style="color:#6B6460;">References</h3>`);
       report.references.forEach((r) => pw.document.write(`<div class="ref-item">${r}</div>`));
@@ -885,11 +878,9 @@ export default function WarehouseAuditTool() {
     }
     setError(null);
     try {
-      // Save answers and email to localStorage before redirecting to Stripe
       localStorage.setItem("wa_answers", JSON.stringify(answers));
       localStorage.setItem("wa_email", customerEmail);
 
-      // Create Stripe Checkout session
       const response = await fetch("/api/create-checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -898,7 +889,6 @@ export default function WarehouseAuditTool() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Failed to create checkout session");
 
-      // Redirect to Stripe
       window.location.href = data.url;
     } catch (err) {
       console.error("Checkout failed:", err);
@@ -906,17 +896,14 @@ export default function WarehouseAuditTool() {
     }
   };
 
-  // Handle return from Stripe Checkout
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const session_id = params.get("session_id");   // ← NEW: Stripe sends this
+    const session_id = params.get("session_id");
     const payment = params.get("payment");
 
     if (session_id || payment === "success") {
-      // Clean URL without reloading
       window.history.replaceState({}, "", window.location.pathname);
 
-      // Retrieve saved data from localStorage
       const savedAnswers = localStorage.getItem("wa_answers");
       const savedEmail = localStorage.getItem("wa_email");
 
@@ -926,12 +913,10 @@ export default function WarehouseAuditTool() {
         setCustomerEmail(savedEmail);
         setView("loading");
 
-        // Generate report — NOW SENDS session_id
         generateReport(parsedAnswers, savedEmail, session_id)
           .then((result) => {
             setReport(result);
             setView("report");
-            // Clear saved data
             localStorage.removeItem("wa_answers");
             localStorage.removeItem("wa_email");
           })
@@ -946,7 +931,6 @@ export default function WarehouseAuditTool() {
       }
     } else if (payment === "cancelled") {
       window.history.replaceState({}, "", window.location.pathname);
-      // Restore saved data so they can try again
       const savedAnswers = localStorage.getItem("wa_answers");
       const savedEmail = localStorage.getItem("wa_email");
       if (savedAnswers) setAnswers(JSON.parse(savedAnswers));
