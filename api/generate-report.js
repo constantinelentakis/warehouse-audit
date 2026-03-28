@@ -2,7 +2,6 @@ import PdfPrinter from "pdfmake";
 import { Resend } from "resend";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 export const maxDuration = 60;
 
 const fonts = {
@@ -31,7 +30,6 @@ function buildPdf(report) {
     { text: report.executive_summary, fontSize: 12, alignment: "center", color: "#1A1D26", lineHeight: 1.6, margin: [30, 0, 30, 28] },
   ];
 
-  // Quick wins
   if (report.quick_wins && report.quick_wins.length > 0) {
     content.push({ text: "Quick Wins — Implement This Week", fontSize: 14, bold: true, color: "#1A9960", margin: [0, 0, 0, 8] });
     report.quick_wins.forEach((qw) => {
@@ -40,7 +38,6 @@ function buildPdf(report) {
     content.push({ text: "", margin: [0, 0, 0, 16] });
   }
 
-  // Strategic priorities
   if (report.strategic_priorities && report.strategic_priorities.length > 0) {
     content.push({ text: "Strategic Priorities — Next 3–6 Months", fontSize: 14, bold: true, color: "#B5654A", margin: [0, 0, 0, 8] });
     report.strategic_priorities.forEach((sp) => {
@@ -49,7 +46,6 @@ function buildPdf(report) {
     content.push({ text: "", margin: [0, 0, 0, 16] });
   }
 
-  // Sections
   (report.sections || []).forEach((section) => {
     const rc = riskColor(section.risk_level);
     content.push({
@@ -82,7 +78,6 @@ function buildPdf(report) {
     content.push({ canvas: [{ type: "line", x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5, lineColor: "#E4DED8" }], margin: [0, 0, 0, 16] });
   });
 
-  // References
   if (report.references && report.references.length > 0) {
     content.push({ text: "REFERENCES", fontSize: 9, bold: true, color: "#A69E98", letterSpacing: 1, margin: [0, 12, 0, 8] });
     report.references.forEach((ref) => {
@@ -169,7 +164,6 @@ function buildInvoice(email, invoiceNumber) {
     pageMargins: [50, 50, 50, 50],
     defaultStyle: { font: "Helvetica", fontSize: 10, lineHeight: 1.4, color: "#1A1D26" },
     content: [
-      // Header
       {
         columns: [
           {
@@ -191,12 +185,8 @@ function buildInvoice(email, invoiceNumber) {
         ],
         margin: [0, 0, 0, 40],
       },
-
-      // Bill To
       { text: "BILL TO", fontSize: 9, bold: true, color: "#A69E98", letterSpacing: 1, margin: [0, 0, 0, 6] },
       { text: email, fontSize: 11, margin: [0, 0, 0, 30] },
-
-      // Line items table
       {
         table: {
           headerRows: 1,
@@ -232,8 +222,6 @@ function buildInvoice(email, invoiceNumber) {
           paddingBottom: () => 0,
         },
       },
-
-      // Totals
       {
         columns: [
           { text: "", width: "*" },
@@ -265,8 +253,6 @@ function buildInvoice(email, invoiceNumber) {
           },
         ],
       },
-
-      // Footer notes
       { text: "", margin: [0, 0, 0, 40] },
       { canvas: [{ type: "line", x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5, lineColor: "#E4DED8" }], margin: [0, 0, 0, 16] },
       { text: "Payment has been received. No further action required.", fontSize: 10, color: "#1A9960", bold: true, margin: [0, 0, 0, 8] },
@@ -296,33 +282,35 @@ export default async function handler(req, res) {
   }
 
   try {
-  const { answers, email, session_id } = req.body;
+    let { answers, email, session_id } = req.body;
 
-  if (!answers) {
-    return res.status(400).json({ error: "No answers provided" });
-  }
-
-  // === STRIPE PAYMENT VERIFICATION (prevents bypass) ===
-  if (!session_id) {
-    return res.status(400).json({ error: "Payment session ID is required" });
-  }
-
-  try {
-    const session = await stripe.checkout.sessions.retrieve(session_id);
-
-    if (session.payment_status !== "paid" || session.status !== "complete") {
-      return res.status(402).json({ error: "Payment has not been completed successfully" });
+    if (!answers) {
+      return res.status(400).json({ error: "No answers provided" });
     }
 
-    // Optional: use email from Stripe if frontend didn't send one
+    // === STRIPE PAYMENT VERIFICATION ===
+    if (!session_id) {
+      return res.status(403).json({ error: "Payment session ID is required" });
+    }
+
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    let session;
+    try {
+      session = await stripe.checkout.sessions.retrieve(session_id);
+    } catch (stripeError) {
+      console.error("Stripe session verification failed:", stripeError);
+      return res.status(400).json({ error: "Invalid or expired payment session" });
+    }
+
+    if (session.payment_status !== "paid" || session.status !== "complete") {
+      return res.status(402).json({ error: "Payment has not been completed" });
+    }
+
+    // Use email from Stripe if frontend didn't send one
     if (!email && session.customer_details?.email) {
       email = session.customer_details.email;
     }
-  } catch (stripeError) {
-    console.error("Stripe session verification failed:", stripeError);
-    return res.status(400).json({ error: "Invalid or expired payment session" });
-  }
-  // === END OF VERIFICATION ===
+    // === END VERIFICATION ===
 
     const systemPrompt = `You are an expert warehouse operations consultant with 15+ years of experience optimising small-to-medium e-commerce warehouses in Australia. You are generating a professional warehouse audit report based on questionnaire responses.
 
@@ -528,7 +516,6 @@ Generate exactly 5 sections: Warehouse Layout & Space Utilisation, B2C Pick/Pack
         await sendEmail(email, reportBuffer, invoiceBuffer, report, invoiceNumber);
       } catch (emailErr) {
         console.error("Email/PDF delivery failed:", emailErr);
-        // Don't fail the whole request if email fails — customer still gets the report in-app
       }
     }
 
