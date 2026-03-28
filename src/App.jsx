@@ -453,11 +453,11 @@ function ReportView({ report, onBack, email }) {
     report.sections.forEach((s) => {
       const rc = RISK_COLORS[s.risk_level] || RISK_COLORS.moderate;
       pw.document.write(`<div class="section">`);
-      pw.document.write(`<h2>${s.title} <span class="badge" style="background:${rc.bg};color:${rc.text};border:1px solid ${rc.border}">${rc.label} risk</span><span class="section-score">${s.score}/100</span></h2>`);
+      pw.document.write(`<h2>\( {s.title} <span class="badge" style="background: \){rc.bg};color:${rc.text};border:1px solid \( {rc.border}"> \){rc.label} risk</span><span class="section-score">${s.score}/100</span></h2>`);
       pw.document.write(`<h3>Findings</h3>`);
       s.findings.forEach((f) => pw.document.write(`<div class="finding">${f}</div>`));
       pw.document.write(`<h3 style="margin-top:16px">Recommendations</h3>`);
-      s.recommendations.forEach((r) => pw.document.write(`<div class="rec"><div class="rec-p">Priority ${r.priority} · ${r.effort} effort${r.timeframe ? ' · ' + r.timeframe : ''}</div><div class="rec-a">${r.action}</div><div class="rec-i">${r.impact}</div></div>`));
+      s.recommendations.forEach((r) => pw.document.write(`<div class="rec"><div class="rec-p">Priority ${r.priority} · \( {r.effort} effort \){r.timeframe ? ' · ' + r.timeframe : ''}</div><div class="rec-a">\( {r.action}</div><div class="rec-i"> \){r.impact}</div></div>`));
       pw.document.write(`</div>`);
     });
 
@@ -687,7 +687,7 @@ function LegalPageView({ page, onBack }) {
           <P>In accordance with the Privacy and Other Legislation Amendment Act 2024, we disclose that automated decision-making is used in the production of your audit report. The AI analyses the information you provide and generates recommendations based on published warehouse operations research.</P>
 
           <H2>5. How we store and protect your information</H2>
-          <P>Your email address is processed by Resend (our email delivery service) to send your report and invoice. Your questionnaire responses are processed in memory during report generation and are not stored in a database after your report has been delivered.</P>
+          <P>Your email address is processed by Resend (our email delivery service) to send your report and invoice. Your questionnaire responses are processed transiently in memory by our systems and are not retained in any database we control after report delivery. They are sent to Anthropic (Claude API) solely for report generation and are subject to Anthropic’s privacy policy and data-retention practices. We have entered into binding contractual arrangements with all listed third-party providers requiring them to protect personal information in a manner consistent with the Australian Privacy Principles.</P>
           <P>We take reasonable technical and organisational measures to protect your information, including the use of encrypted connections (HTTPS/TLS) for all data in transit.</P>
 
           <H2>6. Third-party service providers</H2>
@@ -738,8 +738,7 @@ function LegalPageView({ page, onBack }) {
 
           <H2>4. Refund policy</H2>
           <P>Because the audit report is a personalised digital product generated specifically from your questionnaire responses, change-of-mind refunds are not available once the report has been generated and delivered.</P>
-          <P>However, under the Australian Consumer Law, consumer guarantees apply to all goods and services, including digital products. You are entitled to a refund if:</P>
-          <ul><Li>The report fails to generate or is not delivered to you</Li><Li>The report does not match the description provided on our website</Li><Li>The Service is not of acceptable quality or not fit for the described purpose</Li></ul>
+          <P>Under the Australian Consumer Law you are entitled to a remedy (including a refund, repair, or compensation) if the Service or the report fails to meet any applicable consumer guarantee. Examples include where the report fails to generate, is not delivered, or is not of acceptable quality or fit for the purpose described on our website.</P>
           <P>To request a refund, contact us at lentakisc@gmail.com with your invoice number and a description of the issue.</P>
 
           <H2>5. AI-generated content disclaimer</H2>
@@ -748,7 +747,7 @@ function LegalPageView({ page, onBack }) {
           <P>The report is intended as a starting point for operational improvement, not as a substitute for professional warehouse consulting, engineering, safety assessment, or legal advice.</P>
 
           <H2>6. Limitation of liability</H2>
-          <P>To the maximum extent permitted by law, our total liability arising out of or in connection with the Service is limited to the amount you paid for the report ($99.00 AUD).</P>
+          <P>To the maximum extent permitted by law, and without limiting any non-excludable rights under the Australian Consumer Law, our total liability arising out of or in connection with the Service is limited to the amount you paid for the report ($99.00 AUD).</P>
           <P>We are not liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profit, revenue, business, or data.</P>
           <P>Nothing in these Terms excludes, restricts, or modifies any consumer guarantee, right, or remedy under the Australian Consumer Law that cannot be excluded, restricted, or modified by agreement.</P>
 
@@ -908,54 +907,54 @@ export default function WarehouseAuditTool() {
   };
 
   // Handle return from Stripe Checkout
-useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  const session_id = params.get("session_id");   // ← NEW: Stripe sends this
-  const payment = params.get("payment");
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const session_id = params.get("session_id");   // ← NEW: Stripe sends this
+    const payment = params.get("payment");
 
-  if (session_id || payment === "success") {
-    // Clean URL without reloading
-    window.history.replaceState({}, "", window.location.pathname);
+    if (session_id || payment === "success") {
+      // Clean URL without reloading
+      window.history.replaceState({}, "", window.location.pathname);
 
-    // Retrieve saved data from localStorage
-    const savedAnswers = localStorage.getItem("wa_answers");
-    const savedEmail = localStorage.getItem("wa_email");
+      // Retrieve saved data from localStorage
+      const savedAnswers = localStorage.getItem("wa_answers");
+      const savedEmail = localStorage.getItem("wa_email");
 
-    if (savedAnswers && savedEmail) {
-      const parsedAnswers = JSON.parse(savedAnswers);
-      setAnswers(parsedAnswers);
-      setCustomerEmail(savedEmail);
-      setView("loading");
+      if (savedAnswers && savedEmail) {
+        const parsedAnswers = JSON.parse(savedAnswers);
+        setAnswers(parsedAnswers);
+        setCustomerEmail(savedEmail);
+        setView("loading");
 
-      // Generate report — NOW SENDS session_id
-      generateReport(parsedAnswers, savedEmail, session_id)
-        .then((result) => {
-          setReport(result);
-          setView("report");
-          // Clear saved data
-          localStorage.removeItem("wa_answers");
-          localStorage.removeItem("wa_email");
-        })
-        .catch((err) => {
-          console.error("Report generation failed:", err);
-          setError(err.message || "Report generation failed. Please contact support.");
-          setView("summary");
-        });
-    } else {
-      setError("Payment was successful but your questionnaire data could not be found. Please contact lentakisc@gmail.com with your Stripe receipt for a manual report.");
-      setView("landing");
+        // Generate report — NOW SENDS session_id
+        generateReport(parsedAnswers, savedEmail, session_id)
+          .then((result) => {
+            setReport(result);
+            setView("report");
+            // Clear saved data
+            localStorage.removeItem("wa_answers");
+            localStorage.removeItem("wa_email");
+          })
+          .catch((err) => {
+            console.error("Report generation failed:", err);
+            setError(err.message || "Report generation failed. Please contact support.");
+            setView("summary");
+          });
+      } else {
+        setError("Payment was successful but your questionnaire data could not be found. Please contact lentakisc@gmail.com with your Stripe receipt for a manual report.");
+        setView("landing");
+      }
+    } else if (payment === "cancelled") {
+      window.history.replaceState({}, "", window.location.pathname);
+      // Restore saved data so they can try again
+      const savedAnswers = localStorage.getItem("wa_answers");
+      const savedEmail = localStorage.getItem("wa_email");
+      if (savedAnswers) setAnswers(JSON.parse(savedAnswers));
+      if (savedEmail) setCustomerEmail(savedEmail);
+      setError("Payment was cancelled. Your answers have been saved — you can try again when ready.");
+      setView("summary");
     }
-  } else if (payment === "cancelled") {
-    window.history.replaceState({}, "", window.location.pathname);
-    // Restore saved data so they can try again
-    const savedAnswers = localStorage.getItem("wa_answers");
-    const savedEmail = localStorage.getItem("wa_email");
-    if (savedAnswers) setAnswers(JSON.parse(savedAnswers));
-    if (savedEmail) setCustomerEmail(savedEmail);
-    setError("Payment was cancelled. Your answers have been saved — you can try again when ready.");
-    setView("summary");
-  }
-}, []);   
+  }, []);   
 
   useEffect(() => {
     const link = document.createElement("link");
@@ -1011,7 +1010,8 @@ useEffect(() => {
         )}
 
         {view === "summary" && (
-          <SummaryView answers={answers} onBack={() => { setView("audit"); setCurrentCategoryIndex(CATEGORIES.length - 1); }} onGenerate={handleGenerate} email={customerEmail} onEmailChange={setCustomerEmail} />
+          **Summary:**
+ { setView("audit"); setCurrentCategoryIndex(CATEGORIES.length - 1); }} onGenerate={handleGenerate} email={customerEmail} onEmailChange={setCustomerEmail} />
         )}
 
         {view === "loading" && <LoadingView />}
