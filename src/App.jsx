@@ -225,12 +225,12 @@ function formatAnswersForPrompt(answers) {
   return output;
 }
 
-async function generateReport(answers, email, session_id) {
+async function generateReport(answers, email, sessionId) {
   const formattedAnswers = formatAnswersForPrompt(answers);
   const response = await fetch("/api/generate-report", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ answers: formattedAnswers, email, session_id }),
+    body: JSON.stringify({ answers: formattedAnswers, email, sessionId }),
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || "Report generation failed");
@@ -579,7 +579,7 @@ function LoadingView() {
 }
 
 /* ─── Summary View ─── */
-function SummaryView({ answers, onBack, onGenerate, email, onEmailChange }) {
+function SummaryView({ answers, onBack, onGenerate, email, onEmailChange, onLegalPage }) {
   const allQs = Object.values(QUESTIONS).flat();
   const totalAnswered = allQs.filter((q) => {
     const val = answers[q.id];
@@ -636,7 +636,14 @@ function SummaryView({ answers, onBack, onGenerate, email, onEmailChange }) {
         />
       </div>
 
-      <div style={{ display: "flex", gap: "12px", marginTop: "24px" }}>
+      <p style={{ fontSize: "12px", color: theme.textMuted, textAlign: "center", marginTop: "24px", marginBottom: "12px", lineHeight: 1.6 }}>
+        By proceeding to payment, you agree to our{" "}
+        <span onClick={() => onLegalPage("terms")} style={{ color: theme.accent, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: "2px" }}>Terms & Conditions</span>,{" "}
+        <span onClick={() => onLegalPage("privacy")} style={{ color: theme.accent, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: "2px" }}>Privacy Policy</span>, and{" "}
+        <span onClick={() => onLegalPage("disclaimer")} style={{ color: theme.accent, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: "2px" }}>AI Disclaimer</span>.
+      </p>
+
+      <div style={{ display: "flex", gap: "12px" }}>
         <button onClick={onBack} style={{ flex: 1, padding: "14px", background: "transparent", border: `1px solid ${theme.border}`, borderRadius: "8px", color: theme.textMuted, fontSize: "14px", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: "pointer" }}>← Edit Answers</button>
         <button onClick={onGenerate} style={{ flex: 2, padding: "14px", background: theme.accent, border: "none", borderRadius: "8px", color: "#fff", fontSize: "14px", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: "pointer", boxShadow: `0 0 24px ${theme.accentGlow}` }}>Proceed to Payment — $99 AUD</button>
       </div>
@@ -684,11 +691,11 @@ function LegalPageView({ page, onBack }) {
           <H2>4. Automated decision-making</H2>
           <P>Our Service uses artificial intelligence (specifically, Anthropic's Claude API) to analyse your questionnaire responses and generate a personalised audit report. This means:</P>
           <ul><Li>Your questionnaire responses are sent to Anthropic's API to generate the report</Li><Li>The recommendations in your report are produced by AI, not by a human consultant</Li><Li>No human reviews your individual responses as part of the report generation process</Li></ul>
-          <P>In accordance with the Privacy and Other Legislation Amendment Act 2024, we disclose that automated decision-making is used in the production of your audit report. The AI analyses the information you provide and generates recommendations based on published warehouse operations research.</P>
+          <P>In anticipation of upcoming transparency requirements under the Privacy and Other Legislation Amendment Act 2024 (commencing 10 December 2026), we proactively disclose that automated decision-making is used in the production of your audit report. The AI analyses the information you provide and generates recommendations based on published warehouse operations research.</P>
 
-         <H2>5. How we store and protect your information</H2>
-<P>Your email address is processed by Resend (our email delivery service) to send your report and invoice. Your questionnaire responses are processed transiently in memory by our systems and are not retained in any database we control after report delivery. They are sent to Anthropic (Claude API) solely for report generation and are subject to Anthropic’s privacy policy and data-retention practices. We have entered into binding contractual arrangements with all listed third-party providers requiring them to protect personal information in a manner consistent with the Australian Privacy Principles.</P>
-<P>We take reasonable technical and organisational measures to protect your information, including the use of encrypted connections (HTTPS/TLS) for all data in transit.</P>
+          <H2>5. How we store and protect your information</H2>
+          <P>Your email address is processed by Resend (our email delivery service) to send your report and invoice. Your questionnaire responses are processed in memory during report generation and are not stored in a database after your report has been delivered.</P>
+          <P>We take reasonable technical and organisational measures to protect your information, including the use of encrypted connections (HTTPS/TLS) for all data in transit.</P>
 
           <H2>6. Third-party service providers</H2>
           <P>We use the following third-party services to operate the Service:</P>
@@ -737,9 +744,10 @@ function LegalPageView({ page, onBack }) {
           <ul><Li>An AI-generated warehouse audit report covering Warehouse Layout & Space Utilisation, B2C Pick/Pack Workflow, B2B Pick/Pack Workflow, Staffing & Labour Allocation, and B2B Document & Transfer Flow</Li><Li>An on-screen interactive version of the report</Li><Li>A PDF copy of the report sent to your email</Li><Li>A PDF invoice sent to your email</Li></ul>
 
           <H2>4. Refund policy</H2>
-<P>Because the audit report is a personalised digital product generated specifically from your questionnaire responses, change-of-mind refunds are not available once the report has been generated and delivered.</P>
-<P>Under the Australian Consumer Law you are entitled to a remedy (including a refund, repair, or compensation) if the Service or the report fails to meet any applicable consumer guarantee. Examples include where the report fails to generate, is not delivered, or is not of acceptable quality or fit for the purpose described on our website.</P>
-<P>To request a refund, contact us at lentakisc@gmail.com with your invoice number and a description of the issue.</P>
+          <P>Because the audit report is a personalised digital product generated specifically from your questionnaire responses, change-of-mind refunds are not available once the report has been generated and delivered.</P>
+          <P>However, under the Australian Consumer Law, consumer guarantees apply to all goods and services, including digital products. You are entitled to a refund if:</P>
+          <ul><Li>The report fails to generate or is not delivered to you</Li><Li>The report does not match the description provided on our website</Li><Li>The Service is not of acceptable quality or not fit for the described purpose</Li></ul>
+          <P>To request a refund, contact us at lentakisc@gmail.com with your invoice number and a description of the issue.</P>
 
           <H2>5. AI-generated content disclaimer</H2>
           <P>The audit report is generated by artificial intelligence (Anthropic's Claude). You acknowledge and agree that:</P>
@@ -747,9 +755,9 @@ function LegalPageView({ page, onBack }) {
           <P>The report is intended as a starting point for operational improvement, not as a substitute for professional warehouse consulting, engineering, safety assessment, or legal advice.</P>
 
           <H2>6. Limitation of liability</H2>
-<P>To the maximum extent permitted by law, and without limiting any non-excludable rights under the Australian Consumer Law, our total liability arising out of or in connection with the Service is limited to the amount you paid for the report ($99.00 AUD).</P>
-<P>We are not liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profit, revenue, business, or data.</P>
-<P>Nothing in these Terms excludes, restricts, or modifies any consumer guarantee, right, or remedy under the Australian Consumer Law that cannot be excluded, restricted, or modified by agreement.</P>
+          <P>To the maximum extent permitted by law, our total liability arising out of or in connection with the Service is limited to the amount you paid for the report ($99.00 AUD).</P>
+          <P>We are not liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profit, revenue, business, or data.</P>
+          <P>Nothing in these Terms excludes, restricts, or modifies any consumer guarantee, right, or remedy under the Australian Consumer Law that cannot be excluded, restricted, or modified by agreement.</P>
 
           <H2>7. Intellectual property</H2>
           <P>The content, design, and functionality of the Service are owned by us and protected by copyright. The audit report generated for you is licensed for your internal business use only. You may not resell, redistribute, or commercially exploit the report or any part of the Service.</P>
@@ -907,54 +915,54 @@ export default function WarehouseAuditTool() {
   };
 
   // Handle return from Stripe Checkout
-useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  const session_id = params.get("session_id");   // ← NEW: Stripe sends this
-  const payment = params.get("payment");
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const payment = params.get("payment");
 
-  if (session_id || payment === "success") {
-    // Clean URL without reloading
-    window.history.replaceState({}, "", window.location.pathname);
+    if (payment === "success") {
+      const sessionId = params.get("session_id");
+      // Clean URL without reloading
+      window.history.replaceState({}, "", window.location.pathname);
 
-    // Retrieve saved data from localStorage
-    const savedAnswers = localStorage.getItem("wa_answers");
-    const savedEmail = localStorage.getItem("wa_email");
+      // Retrieve saved data from localStorage
+      const savedAnswers = localStorage.getItem("wa_answers");
+      const savedEmail = localStorage.getItem("wa_email");
 
-    if (savedAnswers && savedEmail) {
-      const parsedAnswers = JSON.parse(savedAnswers);
-      setAnswers(parsedAnswers);
-      setCustomerEmail(savedEmail);
-      setView("loading");
+      if (savedAnswers && savedEmail && sessionId) {
+        const parsedAnswers = JSON.parse(savedAnswers);
+        setAnswers(parsedAnswers);
+        setCustomerEmail(savedEmail);
+        setView("loading");
 
-      // Generate report — NOW SENDS session_id
-      generateReport(parsedAnswers, savedEmail, session_id)
-        .then((result) => {
-          setReport(result);
-          setView("report");
-          // Clear saved data
-          localStorage.removeItem("wa_answers");
-          localStorage.removeItem("wa_email");
-        })
-        .catch((err) => {
-          console.error("Report generation failed:", err);
-          setError(err.message || "Report generation failed. Please contact support.");
-          setView("summary");
-        });
-    } else {
-      setError("Payment was successful but your questionnaire data could not be found. Please contact lentakisc@gmail.com with your Stripe receipt for a manual report.");
-      setView("landing");
+        // Generate report with payment verification
+        generateReport(parsedAnswers, savedEmail, sessionId)
+          .then((result) => {
+            setReport(result);
+            setView("report");
+            // Clear saved data
+            localStorage.removeItem("wa_answers");
+            localStorage.removeItem("wa_email");
+          })
+          .catch((err) => {
+            console.error("Report generation failed:", err);
+            setError(err.message || "Report generation failed. Please contact support.");
+            setView("summary");
+          });
+      } else {
+        setError("Payment was successful but your session could not be verified. Please contact lentakisc@gmail.com with your Stripe receipt for a manual report.");
+        setView("landing");
+      }
+    } else if (payment === "cancelled") {
+      window.history.replaceState({}, "", window.location.pathname);
+      // Restore saved data so they can try again
+      const savedAnswers = localStorage.getItem("wa_answers");
+      const savedEmail = localStorage.getItem("wa_email");
+      if (savedAnswers) setAnswers(JSON.parse(savedAnswers));
+      if (savedEmail) setCustomerEmail(savedEmail);
+      setError("Payment was cancelled. Your answers have been saved — you can try again when ready.");
+      setView("summary");
     }
-  } else if (payment === "cancelled") {
-    window.history.replaceState({}, "", window.location.pathname);
-    // Restore saved data so they can try again
-    const savedAnswers = localStorage.getItem("wa_answers");
-    const savedEmail = localStorage.getItem("wa_email");
-    if (savedAnswers) setAnswers(JSON.parse(savedAnswers));
-    if (savedEmail) setCustomerEmail(savedEmail);
-    setError("Payment was cancelled. Your answers have been saved — you can try again when ready.");
-    setView("summary");
-  }
-}, []);   
+  }, []);
 
   useEffect(() => {
     const link = document.createElement("link");
@@ -1010,7 +1018,7 @@ useEffect(() => {
         )}
 
         {view === "summary" && (
-          <SummaryView answers={answers} onBack={() => { setView("audit"); setCurrentCategoryIndex(CATEGORIES.length - 1); }} onGenerate={handleGenerate} email={customerEmail} onEmailChange={setCustomerEmail} />
+          <SummaryView answers={answers} onBack={() => { setView("audit"); setCurrentCategoryIndex(CATEGORIES.length - 1); }} onGenerate={handleGenerate} email={customerEmail} onEmailChange={setCustomerEmail} onLegalPage={(page) => { setLegalPage(page); setView("legal"); topRef.current?.scrollIntoView({ behavior: "smooth" }); }} />
         )}
 
         {view === "loading" && <LoadingView />}
