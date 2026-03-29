@@ -207,8 +207,8 @@ function buildInvoice(email, invoiceNumber) {
                 margin: [8, 10, 8, 10],
               },
               { text: "1", alignment: "center", margin: [8, 10, 8, 10] },
-              { text: "$99.00", alignment: "right", margin: [8, 10, 8, 10] },
-              { text: "$99.00", alignment: "right", margin: [8, 10, 8, 10] },
+              { text: "$249.00", alignment: "right", margin: [8, 10, 8, 10] },
+              { text: "$249.00", alignment: "right", margin: [8, 10, 8, 10] },
             ],
           ],
         },
@@ -231,7 +231,7 @@ function buildInvoice(email, invoiceNumber) {
               {
                 columns: [
                   { text: "Subtotal", fontSize: 10, color: "#6B6460", width: "*" },
-                  { text: "$99.00", fontSize: 10, alignment: "right", width: "auto" },
+                  { text: "$249.00", fontSize: 10, alignment: "right", width: "auto" },
                 ],
                 margin: [0, 16, 0, 8],
               },
@@ -246,7 +246,7 @@ function buildInvoice(email, invoiceNumber) {
               {
                 columns: [
                   { text: "Total (AUD)", fontSize: 14, bold: true, width: "*" },
-                  { text: "$99.00", fontSize: 14, bold: true, color: "#B5654A", alignment: "right", width: "auto" },
+                  { text: "$249.00", fontSize: 14, bold: true, color: "#B5654A", alignment: "right", width: "auto" },
                 ],
               },
             ],
