@@ -977,7 +977,7 @@ export default function WarehouseAuditTool() {
       <header style={{ padding: "20px 32px", borderBottom: `1px solid ${theme.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", background: theme.surface }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer" }} onClick={() => { setView("landing"); setCurrentCategoryIndex(0); }}>
           <div style={{ width: "32px", height: "32px", background: theme.accentDim, borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px", color: theme.accent, fontWeight: 700 }}>◫</div>
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "14px", fontWeight: 600, color: theme.text, letterSpacing: "-0.3px" }}>WAREHOUSE AUDIT</span>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "14px", fontWeight: 600, color: theme.text, letterSpacing: "-0.3px" }}>PickRate</span>
         </div>
         {view === "audit" && <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "12px", color: theme.textDim }}>Section {currentCategoryIndex + 1} of {CATEGORIES.length}</span>}
         {view === "report" && <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "12px", color: theme.success }}>✓ Report Generated</span>}
