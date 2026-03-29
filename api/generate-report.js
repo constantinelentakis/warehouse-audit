@@ -282,21 +282,22 @@ export default async function handler(req, res) {
   }
 
   try {
-    let { answers, email, session_id } = req.body;
+    let { answers, email, sessionId, session_id: sessionIdFromSnake } = req.body;
 
     if (!answers) {
       return res.status(400).json({ error: "No answers provided" });
     }
 
     // === STRIPE PAYMENT VERIFICATION ===
-    if (!session_id) {
+    const sessionIdToUse = sessionId || sessionIdFromSnake;
+    if (!sessionIdToUse) {
       return res.status(403).json({ error: "Payment session ID is required" });
     }
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
     let session;
     try {
-      session = await stripe.checkout.sessions.retrieve(session_id);
+    session = await stripe.checkout.sessions.retrieve(sessionIdToUse);
     } catch (stripeError) {
       console.error("Stripe session verification failed:", stripeError);
       return res.status(400).json({ error: "Invalid or expired payment session" });
