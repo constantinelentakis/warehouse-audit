@@ -645,7 +645,7 @@ function SummaryView({ answers, onBack, onGenerate, email, onEmailChange, onLega
 
       <div style={{ display: "flex", gap: "12px" }}>
         <button onClick={onBack} style={{ flex: 1, padding: "14px", background: "transparent", border: `1px solid ${theme.border}`, borderRadius: "8px", color: theme.textMuted, fontSize: "14px", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: "pointer" }}>← Edit Answers</button>
-        <button onClick={onGenerate} style={{ flex: 2, padding: "14px", background: theme.accent, border: "none", borderRadius: "8px", color: "#fff", fontSize: "14px", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: "pointer", boxShadow: `0 0 24px ${theme.accentGlow}` }}>Proceed to Payment — $99 AUD</button>
+        <button onClick={onGenerate} style={{ flex: 2, padding: "14px", background: theme.accent, border: "none", borderRadius: "8px", color: "#fff", fontSize: "14px", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: "pointer", boxShadow: `0 0 24px ${theme.accentGlow}` }}>Proceed to Payment — $249 AUD</button>
       </div>
     </div>
   );
