@@ -670,7 +670,7 @@ function SummaryView({ answers, onBack, onGenerate, email, onEmailChange, onLega
 
       <div style={{ display: "flex", gap: "12px" }}>
         <button onClick={onBack} style={{ flex: 1, padding: "14px", background: "transparent", border: `1px solid ${theme.border}`, borderRadius: "8px", color: theme.textMuted, fontSize: "14px", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: "pointer" }}>← Edit Answers</button>
-        <button onClick={onGenerate} style={{ flex: 2, padding: "14px", background: theme.accent, border: "none", borderRadius: "8px", color: "#fff", fontSize: "14px", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: "pointer", boxShadow: `0 0 24px ${theme.accentGlow}` }}>Proceed to Payment — $249 AUD</button>
+        <button onClick={onGenerate} style={{ flex: 2, padding: "14px", background: theme.accent, border: "none", borderRadius: "8px", color: "#fff", fontSize: "14px", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: "pointer", boxShadow: `0 0 24px ${theme.accentGlow}` }}>Proceed to Payment — $99 AUD</button>
       </div>
     </div>
   );
@@ -760,7 +760,7 @@ function LegalPageView({ page, onBack }) {
           <P>The report is delivered to you both on-screen and as a PDF attachment to the email address you provide.</P>
 
           <H2>2. Pricing and payment</H2>
-          <P>The Service is priced at $249.00 AUD per audit report. This is the total price. We are not registered for GST and no GST is charged.</P>
+          <P>The Service is priced at $99.00 AUD per audit report. This is the total price. We are not registered for GST and no GST is charged.</P>
           <P>Payment is processed securely through Stripe. We do not receive, process, or store your payment card details.</P>
           <P>An invoice is automatically generated and sent to your email address with the report as proof of purchase for your tax records.</P>
 
@@ -780,7 +780,7 @@ function LegalPageView({ page, onBack }) {
           <P>The report is intended as a starting point for operational improvement, not as a substitute for professional warehouse consulting, engineering, safety assessment, or legal advice.</P>
 
           <H2>6. Limitation of liability</H2>
-          <P>To the maximum extent permitted by law, our total liability arising out of or in connection with the Service is limited to the amount you paid for the report ($249.00 AUD).</P>
+          <P>To the maximum extent permitted by law, our total liability arising out of or in connection with the Service is limited to the amount you paid for the report ($99.00 AUD).</P>
           <P>We are not liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profit, revenue, business, or data.</P>
           <P>Nothing in these Terms excludes, restricts, or modifies any consumer guarantee, right, or remedy under the Australian Consumer Law that cannot be excluded, restricted, or modified by agreement.</P>
 
@@ -852,7 +852,7 @@ function LandingView({ onStart }) {
       <h1 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(28px, 5vw, 42px)", fontWeight: 700, color: theme.text, lineHeight: 1.2, maxWidth: "600px", margin: "0 auto 20px" }}>Find the inefficiencies your warehouse can't see</h1>
       <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "16px", color: theme.textMuted, lineHeight: 1.7, maxWidth: "520px", margin: "0 auto 40px" }}>Answer questions curated by real industry experience about your warehouse operations across five critical areas. Get a detailed, AI-powered audit report, designed to match your answers against the best industry research and standards. Access tailored recommendations that could cut costs, speed up dispatch, and fix what's slowing you down.</p>
       <div style={{ display: "flex", justifyContent: "center", gap: "32px", marginBottom: "48px", flexWrap: "wrap" }}>
-        {[{ num: "15", label: "minutes to complete" }, { num: "5", label: "areas audited" }, { num: "$249", label: "per report" }].map((stat) => (
+        {[{ num: "15", label: "minutes to complete" }, { num: "5", label: "areas audited" }, { num: "$99", label: "per report" }].map((stat) => (
           <div key={stat.label}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "28px", color: theme.accent, fontWeight: 700 }}>{stat.num}</div>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", color: theme.textDim, letterSpacing: "0.5px", marginTop: "4px" }}>{stat.label}</div>
