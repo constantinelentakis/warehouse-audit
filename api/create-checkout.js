@@ -28,6 +28,7 @@ export default async function handler(req, res) {
         },
       ],
       mode: "payment",
+      allow_promotion_codes: true,
       success_url: `${req.headers.origin || process.env.CLIENT_URL}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.origin || process.env.CLIENT_URL}?payment=cancelled`,
     });
