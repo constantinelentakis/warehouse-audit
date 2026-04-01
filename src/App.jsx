@@ -596,6 +596,9 @@ function LoadingView() {
           </div>
         ))}
       </div>
+      <div style={{ marginTop: "32px", padding: "14px 20px", background: theme.accentDim, border: `1px solid ${theme.accent}`, borderRadius: "8px", maxWidth: "360px", marginLeft: "auto", marginRight: "auto" }}>
+        <p style={{ fontSize: "12px", color: theme.accent, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.6, textAlign: "center", margin: 0 }}>Please don't close this page — your report and invoice will be emailed to you once generation is complete.</p>
+      </div>
     </div>
   );
 }
