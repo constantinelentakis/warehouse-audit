@@ -48,14 +48,20 @@ const QUESTIONS = {
       id: "stock_turnover", label: "Does stock turn over quickly enough to operate close to capacity?", type: "multiselect",
       options: ["Yes — stock moves fast, high capacity is manageable", "Mostly — some slow movers take up space", "No — dead stock and slow movers clog up space", "Not sure — we don't track turnover closely"],
     },
+    {
+      id: "layout_other", label: "Anything else about your warehouse layout or space you'd like us to know?", type: "textarea",
+      placeholder: "Optional — mention anything unusual about your setup, recent changes, or specific pain points...",
+    },
   ],
   pickpack_b2c: [
     { id: "b2c_daily_orders", label: "Average daily B2C orders dispatched (non-busy periods)", type: "number", suffix: "orders/day", placeholder: "e.g. 150" },
     { id: "b2c_daily_orders_busy", label: "Average daily B2C orders dispatched (busy periods)", type: "number", suffix: "orders/day", placeholder: "e.g. 300" },
     { id: "b2c_picks_per_hour", label: "For B2C picks, what is the average items picked per person per hour?", type: "number", suffix: "items/hour", placeholder: "e.g. 60" },
-    { id: "b2c_skus_per_order", label: "Average number of items per B2C order", type: "number", suffix: "items", placeholder: "e.g. 3" },
     {
-      id: "b2c_dispatch_size", label: "Typical size of dispatched B2C orders", type: "multiselect",
+      id: "kpi_tracking", label: "Which warehouse KPIs do you currently track?", type: "multiselect",
+      options: ["Pick rate (items per hour)", "Order accuracy / error rate", "Order-to-dispatch cycle time", "Cost per order", "Inventory accuracy", "Space utilisation", "Labour cost per unit", "Returns / rework rate", "We don't formally track KPIs"],
+    },
+    { id: "b2c_skus_per_order", label: "Typical size of dispatched B2C orders", type: "multiselect",
       options: ["Small satchel", "Medium satchel", "Large satchel", "Small box", "Medium box", "Large box", "Multiple boxes", "Pallet", "Multiple pallets"],
     },
     {
@@ -77,6 +83,10 @@ const QUESTIONS = {
     {
       id: "b2c_order_priority", label: "How do you prioritise B2C order processing?", type: "multiselect",
       options: ["Express orders first", "First in, first out (FIFO)", "Bulky / heavy orders separately", "By carrier cutoff times", "No formal priority system"],
+    },
+    {
+      id: "b2c_other", label: "Anything else about your B2C pick/pack workflow you'd like us to know?", type: "textarea",
+      placeholder: "Optional — mention specific challenges, seasonal patterns, or things you've tried...",
     },
   ],
   pickpack_b2b: [
@@ -106,6 +116,10 @@ const QUESTIONS = {
     {
       id: "b2b_order_priority", label: "How do you prioritise B2B order processing?", type: "multiselect",
       options: ["Express orders first", "First in, first out (FIFO)", "Bulky / heavy orders separately", "By customer priority or SLA", "By delivery route or region", "No formal priority system"],
+    },
+    {
+      id: "b2b_other", label: "Anything else about your B2B pick/pack workflow you'd like us to know?", type: "textarea",
+      placeholder: "Optional — mention specific customer requirements, SLA pressures, or recurring issues...",
     },
   ],
   staffing: [
@@ -138,6 +152,10 @@ const QUESTIONS = {
       id: "rotation_details", label: "If you rotate, which tasks and roughly how often?", type: "textarea",
       placeholder: "e.g. Pick and pack rotate every 2 hours, receiving staff switch to dispatch after lunch...",
       conditional: { field: "task_rotation", notValue: "No — staff stay on one task per shift" },
+    },
+    {
+      id: "staffing_other", label: "Anything else about your staffing or labour allocation you'd like us to know?", type: "textarea",
+      placeholder: "Optional — mention agency relationships, training gaps, shift patterns, or morale issues...",
     },
   ],
   documents: [
@@ -184,6 +202,10 @@ const QUESTIONS = {
     {
       id: "spreadsheet_tracking", label: "Do you rely on manual spreadsheets to track order completion progress?", type: "multiselect",
       options: ["Yes — spreadsheets are our main tracking tool", "Partially — spreadsheets supplement our system", "No — our WMS/system handles tracking", "No — we don't formally track completion"],
+    },
+    {
+      id: "documents_other", label: "Anything else about your document flow or transfer processes you'd like us to know?", type: "textarea",
+      placeholder: "Optional — mention specific pain points, compliance concerns, or system limitations...",
     },
   ],
 };
