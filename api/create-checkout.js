@@ -22,7 +22,7 @@ export default async function handler(req, res) {
               description:
                 "AI-powered audit across 5 operational areas with prioritised recommendations backed by peer-reviewed research.",
             },
-            unit_amount: 24900, // $249.00 AUD in cents
+            unit_amount: 9900, // $99.00 AUD in cents
           },
           quantity: 1,
         },
